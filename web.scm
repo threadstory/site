@@ -55,7 +55,7 @@
   (lambda (active-item items)
 
     (define (make-nav-item item-name active?)
-      (let* ((color (if active? 'text-black 'text-gray-100))
+      (let* ((color (if active? 'text-black 'text-white))
 	     (css-classes `(inline-block py-2 px-4 ,color
 					 no-underline hover:text-black
 					 hover:text-underline)))
@@ -69,7 +69,7 @@
 	     (make-nav-item i (equal? i active-item)))  items))
     
     `(nav (@ (id "header")
-	     (class "fixed w-full z-30 top-0 text-white"))
+	     (class "w-full z-30 top-0 text-white"))
 	  
 	  (div (@ ,(classes '(w-full container mx-auto flex flex-wrap items-center
 				     justify-between mt-0 py-2)))
@@ -254,7 +254,65 @@
 
 		 ,@(section-title "Popular Products")
 
-		 ,(cards->sxml products))))
+		 ,(cards->sxml products)
+
+		 (img (@ (class "wave-top")
+			 (src "pictures/wave-top.svg"))))))
+
+
+(define contact
+  `(section (@ (class "container mx-auto text-center py-6 mb-12"))
+
+	    (h1 (@ ,(classes (quote (w-full my-2 text-5xl font-bold leading-tight
+					    text-center text-white))))
+		"Contact Today")
+
+	    (div (@ (class "w-full mb-4"))
+		 (div (@ (class "h-1 mx-auto bg-white w-1/6 opacity-25 my-0 py-0 rounded-t"))))
+
+	    (h3 (@ (class "my-4 text-3xl leading-tight"))
+		"get the early bird discount!")
+
+	    (button (@ (class "mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg"))
+		    "Contact us!")))
+
+(define-record-type footer-list (fields title items))
+
+(define footer-items (list (make-footer-list "Links" '(faq help support))
+			   (make-footer-list "Legal" '(terms privacy))
+			   (make-footer-list "Social" '(facebook linkedin twitter))
+			   (make-footer-list "Company" '(blog about contact))))
+
+(define footer-list->sxml
+  (lambda (footer-list)
+    `(div (@ (class "flex-1"))
+	  (p (@ (class "uppercase text-gray-500 md:mb-6"))
+	     ,(footer-list-title footer-list)
+	     (ul (@ (class "list-reset mb-6"))
+		 ,@(map (lambda (i)
+			  `(li (@ (class "mt-2 inline-block mr-2 md:block md:mr-0"))
+			       (a (@ (href "#")
+				     ,(classes '(no-underline hover:underline text-gray-800
+							      hover:text-orange-500)))
+				  ,(string-titlecase (symbol->string i)))))
+			(footer-list-items footer-list)))))))
+
+(define footer
+  `(footer (@ (class "bg-white"))
+	   (div (@ (class "container mx-auto px-8"))
+
+		(div (@ (class "w-full flex flex-col md:flex-row py-6"))
+
+		     (div (@ (class "flex-1 mb-6"))
+
+			  (a (@ ,(classes '(text-black no-underline font-bold text-2xl
+						       lg:text-4xl))
+				(href "#"))
+			     (img (@ (class "h-8 fill-current inline")
+				     (src "https://threadstory.in/image/ts-logo.svg")))
+			     "Threadstory"))
+
+		     ,@(map footer-list->sxml footer-items)))))
 
 
 (define generate-index-page
@@ -273,7 +331,14 @@
 
 			       ,promise-section
 
-			       ,popular-products))))
+			       ,popular-products
+
+			       ,contact
+
+			       ,footer
+
+			       (script (@ (type "application/javascript")
+					  (src "scripts/app.js")))))))
       'replace)))
 
 

@@ -10,14 +10,12 @@
 
 (define *dist-directory* "dist")
 
-(define (ensure-dist-directory)
+(define (ensure-directory dir)
   (let ((full-dist-path (string-append (current-directory)
 				       (string (directory-separator))
-				       *dist-directory*)))
+				       dir)))
     (when (not (file-directory? full-dist-path))
       (mkdir full-dist-path))))
-
-(ensure-dist-directory)
 
 
 (define (html-template body)
@@ -345,7 +343,7 @@
 
 (define generate-index-page
   (lambda ()
-    (with-output-to-file "dist/index.html"
+    (with-output-to-file (string-append *dist-directory* "/index.html")
       (lambda ()
 	(SXML->HTML
 	 (html-template `(body (@ (class "leading-normal tracking-normal text-white gradient")
@@ -372,7 +370,7 @@
 
 (define generate-products-page
   (lambda ()
-    (with-output-to-file "dist/products.html"
+    (with-output-to-file (string-append *dist-directory* "/products.html")
       (lambda ()
 	(SXML->HTML
 	 (html-template `(body (@ (class "leading-normal tracking-normal text-white gradient")
@@ -394,5 +392,4 @@
 
 (load "web.scm")
 
-(begin (generate-index-page)
-       (generate-products-page))
+(begin )

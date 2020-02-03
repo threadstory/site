@@ -55,13 +55,16 @@
   (lambda (active-item items)
 
     (define (make-nav-item item-name active?)
-      (let* ((color (if active? 'text-black 'text-white))
-	     (css-classes `(inline-block py-2 px-4 ,color
+      (let* ((color (if active?
+		      (list 'text-black)
+		      (list 'text-white 'toggleColour)))
+	     (css-classes `(inline-block py-2 px-4 ,@color
 					 no-underline hover:text-black
 					 hover:text-underline)))
 	`(li (@ (class "mr-3"))
 	     (a (@ ,(classes css-classes)
-		   (href "#"))
+		   (href "#")
+		   (id ,(if active? "active-nav" "nav-item")))
 		,(string-titlecase (symbol->string item-name))))))
 
     (define (navbar-items)
@@ -69,7 +72,7 @@
 	     (make-nav-item i (equal? i active-item)))  items))
     
     `(nav (@ (id "header")
-	     (class "w-full z-30 top-0 text-white"))
+	     (class "w-full fixed z-30 top-0 text-white"))
 	  
 	  (div (@ ,(classes '(w-full container mx-auto flex flex-wrap items-center
 				     justify-between mt-0 py-2)))
@@ -338,7 +341,7 @@
 			       ,footer
 
 			       (script (@ (type "application/javascript")
-					  (src "scripts/app.js")))))))
+					  (src "scripts/scm.js")))))))
       'replace)))
 
 

@@ -15,6 +15,7 @@
 
 
 (define (setup-navbar)
+  
   (define header (get-element-by-id "header"))
   (define navcontent (get-element-by-id "nav-content"))
   (define navaction (get-element-by-id "navAction"))

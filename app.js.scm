@@ -84,14 +84,6 @@
 
   (define *drawer-open* #f)
 
-  (define check-parent
-    (lambda (target element)
-      (let lp ((parent (.parentNode target)))
-	(cond
-	 ((null? parent) #f)
-	 ((equal? target element) #t)
-	 (else (lp (.parentNode parent)))))))
-
   (define nav-callback
     (lambda (e)
       (if *drawer-open*

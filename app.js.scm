@@ -49,7 +49,7 @@
 	  (add-class navcontent "bg-white")
 	  (remove-class navcontent "bg-gray-100")
 
-	  (remove-class nav-menu "text-white")
+	  (remove-class nav-menu "text-black")
 	  (add-class nav-menu "text-green-800"))
 	(begin
 	  (remove-class header "bg-white" "shadow")
@@ -69,7 +69,7 @@
 	  (add-class navcontent "bg-gray-100")
 
 	  (remove-class nav-menu "text-green-800")
-	  (add-class nav-menu "text-white"))))
+	  (add-class nav-menu "text-black"))))
 
   (%inline "document.addEventListener"
 	   "scroll"

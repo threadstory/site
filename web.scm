@@ -1,6 +1,8 @@
 (library-directories '("./thunderchez" "."))
 
 (import (sxml to-html)
+	
+	(srfi s1 lists)
 	(srfi s13 strings))
 
 (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
@@ -87,7 +89,7 @@
 		       "Threadstory"))
 
 	       ;; hamburger
-	       (div (@ (class "block lg:hidden pr-4 text-white")
+	       (div (@ (class "block lg:hidden pr-4 text-black")
 		       (id "nav-toggle"))
 		    (button (@ ,(classes '(flex items-center p-1)))
 			    (svg (@ (class "fill-current h-6 w-6")
@@ -248,19 +250,34 @@
 				  "Caps for summers"
 				  "pictures/caps.webp")
 
-		       ))
+		       (make-card "Flex Banner"
+				  "Banners for powerful messages"
+				  "pictures/flex-banner.webp")
 
-(define popular-products
-  `(section (@ (class "bg-white border-p py-8"))
+		       (make-card "Posters"
+				  "Posters for your room"
+				  "pictures/poster.webp")
 
-	    (div (@ (class "container mx-auto flex flex-wrap pt-4 pb-12"))
+		       (make-card "Visiting cards"
+				  "Visiting cards for business"
+				  "pictures/card.webp")))
 
-		 ,@(section-title "Popular Products")
+(define product-grid
+  (lambda (only-popular?)
+    `(section (@ (class "bg-white border-p py-8"))
 
-		 ,(cards->sxml products)
+	      (div (@ (class "container mx-auto flex flex-wrap pt-4 pb-12"))
 
-		 (img (@ (class "wave-top")
-			 (src "pictures/wave-top.svg"))))))
+		   ,@(if only-popular?
+			 (section-title "Popular Products")
+			 (list))
+
+		   ,(cards->sxml (if only-popular?
+				     (take products 3)
+				     products))
+
+		   (img (@ (class "wave-top")
+			   (src "pictures/wave-top.svg")))))))
 
 
 (define contact
@@ -334,7 +351,7 @@
 
 			       ,promise-section
 
-			       ,popular-products
+			       ,(product-grid #t)
 
 			       ,contact
 
@@ -345,7 +362,29 @@
       'replace)))
 
 
+(define generate-products-page
+  (lambda ()
+    (with-output-to-file "dist/products.html"
+      (lambda ()
+	(SXML->HTML
+	 (html-template `(body (@ (class "leading-normal tracking-normal text-white gradient")
+				  (style "font-family: 'Source Sans Pro', sans-serif;"))
+			       
+			       ,(navbar 'products '(home products about))
 
 
-;; (load "web.scm")
-;; (generate-index-page)
+			       ,(product-grid #f)
+
+			       ,footer
+
+			       (script (@ (type "application/javascript")
+					  (src "scripts/scm.js")))))))
+      'replace)))
+
+
+#!eof
+
+(load "web.scm")
+
+(begin (generate-index-page)
+       (generate-products-page))

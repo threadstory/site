@@ -44,6 +44,7 @@
 
 (define (compile-javascript . files)
   (let ((dest-folder (construct-paths *dist-directory* "scripts")))
+    (ensure-directory dest-folder)
     (map (lambda (file)
 	   (let ((dest-js (construct-paths dest-folder
 					   (string-drop-right file 4)))) 
@@ -57,3 +58,9 @@
   (generate-site-pages)
   (copy-folder "pictures")
   (compile-javascript "app.js.scm"))
+
+#!eof
+
+(load "web.scm")
+(load "build.scm")
+(generate-site)

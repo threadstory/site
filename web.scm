@@ -31,10 +31,10 @@
 	       
 	       ;; tailwind css
 	       (link (@ (rel "stylesheet")
-			(href ,+tailwind-css-url+)))
+			(href ,+tailwind-css-url+)) " ")
 	       
-	       (line (@ (rel "stylesheet")
-			(href ,+font-url+)))
+	       (link (@ (rel "stylesheet")
+			(href ,+font-url+)) " ")
 	       
 	       (style "
 .gradient {
@@ -364,7 +364,7 @@
 			       ,footer
 
 			       (script (@ (type "application/javascript")
-					  (src "scripts/scm.js")))))))
+					  (src "scripts/app.js")) " ")))))
       'replace)))
 
 
@@ -383,8 +383,7 @@
 
 			       ,footer
 
-			       (script (@ (type "application/javascript")
-					  (src "scripts/scm.js")))))))
+			       (script (@ (src "/scripts/app.js")) " ")))))
       'replace)))
 
 

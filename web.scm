@@ -1,6 +1,7 @@
 (library-directories '("./thunderchez" "."))
 
-(import (sxml to-html))
+(import (sxml to-html)
+	(srfi s13 strings))
 
 (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
 (define +font-url+ "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700")
@@ -56,8 +57,8 @@
 
     (define (make-nav-item item-name active?)
       (let* ((color (if active?
-		      (list 'text-black)
-		      (list 'text-white 'toggleColour)))
+			(list 'text-black)
+			(list 'text-white 'toggleColour)))
 	     (css-classes `(inline-block py-2 px-4 ,@color
 					 no-underline hover:text-black
 					 hover:text-underline)))
@@ -86,10 +87,9 @@
 		       "Threadstory"))
 
 	       ;; hamburger
-	       (div (@ (class "block lg:hidden pr-4"))
-		    (button (@ (id "nav-toggle")
-			       ,(classes '(flex items-center p-1 text-orange-800
-						hover:text-gray-900)))
+	       (div (@ (class "block lg:hidden pr-4 text-white")
+		       (id "nav-toggle"))
+		    (button (@ ,(classes '(flex items-center p-1)))
 			    (svg (@ (class "fill-current h-6 w-6")
 				    (viewBox "0 0 20 20")
 				    (xmlns "http://www.w3.org/2000/svg"))
@@ -97,7 +97,7 @@
 				 (path (@ (d "M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"))))))
 
 	       (div (@ ,(classes '(w-full flex-grow lg:flex lg:items-center lg:w-auto
-					  hidden lg:block mt-2 lg:mt-0 bg-white
+					  hidden lg:block mt-2 lg:mt-0 bg-blue-400
 					  lg:bg-transparent text-black p-4 lg:p-0 z-20))
 		       (id "nav-content"))
 		    (ul (@ ,(classes '(list-reset lg:flex justify-end flex-1

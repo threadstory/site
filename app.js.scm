@@ -25,45 +25,51 @@
   ;; this may not work when we include client side routing
   (define active-nav (get-element-by-id "active-nav"))
   ;; (define navs (query-selector-all ".nav"))
-  
+
+  (define nav-menu (get-element-by-id "nav-toggle"))
 
   ;; todo cleanup this function
   (define (change-navbar-background background-white?)
-    (print (vector-length to-toggle))
     (if background-white?
-      (begin 
-	(add-class header "bg-white" "shadow")
+	(begin 
+	  (add-class header "bg-white" "shadow")
 
-	(add-class navaction "gradient" "text-white")
-	(remove-class navaction "bg-white" "text-gray-800")
+	  (add-class navaction "gradient" "text-white")
+	  (remove-class navaction "bg-white" "text-gray-800")
 
-	(%inline ".forEach"
-		 to-toggle
-		 (callback (lambda (e)
-			     (remove-class e "text-white" "hover:text-black")
-			     (add-class e "text-black" "hover:text-green-800"))))
+	  (%inline ".forEach"
+		   to-toggle
+		   (callback (lambda (e)
+			       (remove-class e "text-white" "hover:text-black")
+			       (add-class e "text-black" "hover:text-green-800"))))
 
-	(remove-class active-nav "text-black")
-	(add-class active-nav "text-green-800")
-	
-	(add-class navcontent "bg-white")
-	(remove-class navcontent "bg-gray-100"))
-      (begin
-	(remove-class header "bg-white" "shadow")
+	  (remove-class active-nav "text-black")
+	  (add-class active-nav "text-green-800")
+	  
+	  (add-class navcontent "bg-white")
+	  (remove-class navcontent "bg-gray-100")
 
-	(add-class navaction "bg-white" "text-gray-800")
-	(remove-class navaction "gradient" "text-white")
+	  (remove-class nav-menu "text-white")
+	  (add-class nav-menu "text-green-800"))
+	(begin
+	  (remove-class header "bg-white" "shadow")
 
-	(%inline ".forEach" to-toggle (callback
-				       (lambda (e)
-					 (remove-class e "text-black" "hover:text-green-800")
-					 (add-class e "text-white" "hover:text-black"))))
+	  (add-class navaction "bg-white" "text-gray-800")
+	  (remove-class navaction "gradient" "text-white")
 
-	(remove-class active-nav "text-green-800")
-	(add-class active-nav "text-black")
-	
-	(remove-class navcontent "bg-white")
-	(add-class navcontent "bg-gray-100"))))
+	  (%inline ".forEach" to-toggle (callback
+					 (lambda (e)
+					   (remove-class e "text-black" "hover:text-green-800")
+					   (add-class e "text-white" "hover:text-black"))))
+
+	  (remove-class active-nav "text-green-800")
+	  (add-class active-nav "text-black")
+	  
+	  (remove-class navcontent "bg-white")
+	  (add-class navcontent "bg-gray-100")
+
+	  (remove-class nav-menu "text-green-800")
+	  (add-class nav-menu "text-white"))))
 
   (%inline "document.addEventListener"
 	   "scroll"
@@ -72,7 +78,32 @@
 			 (change-navbar-background (> scroll-pos 10)))))))
 
 
+(define (setup-mobile-navbar)
+  (define nav-menu-div (get-element-by-id "nav-content"))
+  (define nav-menu (get-element-by-id "nav-toggle"))
+
+  (define *drawer-open* #f)
+
+  (define check-parent
+    (lambda (target element)
+      (let lp ((parent (.parentNode target)))
+	(cond
+	 ((null? parent) #f)
+	 ((equal? target element) #t)
+	 (else (lp (.parentNode parent)))))))
+
+  (define nav-callback
+    (lambda (e)
+      (if *drawer-open*
+      	  (add-class nav-menu-div "hidden")
+	  (remove-class nav-menu-div "hidden"))
+      (set! *drawer-open* (not *drawer-open*))))
+
+  (%property-set! .onclick nav-menu (callback nav-callback)))
+
+
 (define (setup)
-  (setup-navbar))
+  (setup-navbar)
+  (setup-mobile-navbar))
 
 (set! window.onload (callback setup))

@@ -57,8 +57,12 @@
 (define navbar
   (lambda (active-item items)
 
-    (define (make-nav-item item-name active?)
-      (let* ((color (if active?
+    (define (make-nav-item item-info active?)
+      (let* ((item-name (if (pair? item-info) (car item-info) item-info))
+	     (item-href (if (pair? item-info)
+			    (cdr item-info)
+			    (string-append "/" (symbol->string item-name) ".html")))
+	     (color (if active?
 			(list 'text-black)
 			(list 'text-white 'toggleColour)))
 	     (css-classes `(inline-block py-2 px-4 ,@color
@@ -66,13 +70,14 @@
 					 hover:text-underline)))
 	`(li (@ (class "mr-3"))
 	     (a (@ ,(classes css-classes)
-		   (href "#")
+		   (href ,item-href)
 		   (id ,(if active? "active-nav" "nav-item")))
 		,(string-titlecase (symbol->string item-name))))))
 
     (define (navbar-items)
       (map (lambda (i)
-	     (make-nav-item i (equal? i active-item)))  items))
+	     (make-nav-item i (equal? (if (pair? i) (car i) i)
+				      active-item)))  items))
     
     `(nav (@ (id "header")
 	     (class "w-full fixed z-30 top-0 text-white"))
@@ -83,7 +88,7 @@
 		    (a (@ ,(classes '(toggleColour text-white no-underline
 						   hover:no-underline font-bold text-2xl
 						   lg:text-4xl))
-			  (href "#"))
+			  (href "/"))
 		       (img (@ (class "h-8 fill-current inline")
 			       (src "https://threadstory.in/image/ts-logo.svg")))
 		       "Threadstory"))
@@ -113,6 +118,9 @@
 						       mt-4 lg:mt-0 py-4 px-8 shadow
 						       opacity-75)))
 				"Contact us")))))))
+
+
+;; (navbar 'home '((home . "/") products about))
 
 (define hero
   `(div (@ (class "pt-24"))
@@ -343,7 +351,7 @@
 	 (html-template `(body (@ (class "leading-normal tracking-normal text-white gradient")
 				  (style "font-family: 'Source Sans Pro', sans-serif;"))
 			       
-			       ,(navbar 'home '(home products about))
+			       ,(navbar 'home '((home . "/") products about))
 
 			       ,hero
 
@@ -370,7 +378,7 @@
 	 (html-template `(body (@ (class "leading-normal tracking-normal text-white gradient")
 				  (style "font-family: 'Source Sans Pro', sans-serif;"))
 			       
-			       ,(navbar 'products '(home products about))
+			       ,(navbar 'products '((home . "/") products about))
 
 
 			       ,(product-grid #f)

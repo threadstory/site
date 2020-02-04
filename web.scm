@@ -270,9 +270,9 @@
 
 (define product-grid
   (lambda (only-popular?)
-    `(section (@ (class "bg-white border-p py-8"))
+    `(section (@ (class "bg-white border-p py-12"))
 
-	      (div (@ (class "container mx-auto flex flex-wrap pt-4 pb-12"))
+	      (div (@ (class "container mx-auto flex flex-wrap pt-4 pb-12 py-8"))
 
 		   ,@(if only-popular?
 			 (section-title "Popular Products")
@@ -382,6 +382,8 @@
 			       ,(product-grid #f)
 
 			       ,footer
+
+			       (script "window.bgWhite = true")
 
 			       (script (@ (src "/scripts/app.js")) " ")))))
       'replace)))

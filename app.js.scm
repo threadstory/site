@@ -30,6 +30,7 @@
 
   ;; todo cleanup this function
   (define (change-navbar-background background-white?)
+    (print "bg white " background-white?)
     (if background-white?
 	(begin 
 	  (add-class header "bg-white" "shadow")
@@ -71,11 +72,14 @@
 	  (remove-class nav-menu "text-green-800")
 	  (add-class nav-menu "text-black"))))
 
+  (when (not (void? (%host-ref "window.bgWhite"))) (change-navbar-background #t))
+  
   (%inline "document.addEventListener"
 	   "scroll"
 	   (callback (lambda ()
 		       (let ((scroll-pos (%host-ref "window.scrollY")))
-			 (change-navbar-background (> scroll-pos 10)))))))
+			 (change-navbar-background (or (> scroll-pos 10)
+						      (not (void? (%host-ref "window.bgWhite"))))))))))
 
 
 (define (setup-mobile-navbar)

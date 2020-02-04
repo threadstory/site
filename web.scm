@@ -300,8 +300,9 @@
 	    (h3 (@ (class "my-4 text-3xl leading-tight"))
 		"get the early bird discount!")
 
-	    (button (@ (class "mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg"))
-		    "Contact us!")))
+	    (a (@ (href "/contact-us.html"))
+	       (button (@ (class "mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg"))
+		       "Contact us!"))))
 
 (define-record-type footer-list (fields title items))
 
@@ -420,11 +421,75 @@ easier to access.")))
     (script "window.bgWhite = true")) 'about)
 
 
+(define input
+  (case-lambda
+    ((input-name) (input input-name "text"))
+    ((input-name type)
+     `(div (@ (class "flex items-center  mb-6"))
+	   (div (@ (class "w-1/3"))
+		(label
+		 (@ ,(classes '(block text-gray-500 font-bold md:text-right
+				      mb-1 md:mb-0 pr-4 ))
+		    (for ,input-name))
+		 ,(string-titlecase input-name)))
+	   (div (@ (class "w-2/3"))
+		(input
+		 (@ ,(classes
+		      '(bg-gray-200 appearance-none border-2
+				    border-gray-200 rounded
+				    w-full py-2 px-4 text-gray-700
+				    leading-tight focus:outline-none
+				    focus:bg-white focus:border-purple-500))
+		    (type ,type)
+		    (id ,input-name))
+		 ""))))))
+
+
+(define (select-box input-name options)
+  `(div (@ (class "flex items-center mb-6"))
+	(div (@ (class "w-1/3"))
+	     (label
+	      (@ ,(classes '(block text-gray-500 font-bold md:text-right
+				   mb-1 md:mb-0 pr-4 ))
+		 (for ,input-name))
+	      ,(string-append "Select " (string-titlecase input-name) ":")))
+	
+	(div (@ (class "w-2/3"))
+	     (div (@ (class "relative"))
+		  (select (@ (class "block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"))
+			  ,@(map (lambda (o) `(option ,o)) options))
+		  (div (@ (class "pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"))
+		       (svg (@ (class "fill-current h-4 w-4")
+			       (xmlns "http://www.w3.org/2000/svg")
+			       (viewBox "0 0 20 20"))
+			    (path (@ (d "M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z")))))))))
+
+
 (define-threadstory-page contact-us
   `((section (@ (class "bg-white border-b py-12"))
 	     (div (@ (class "container max-w-5xl mx-auto m-8 py-8"))
 
-		  ,@(section-title "Contact us")))
+		  ,@(section-title "Contact us")
+
+		  (form (@ (class "w-full max-w-sm py-12 container mx-auto"))
+
+			,(input "name")
+
+			,(input "phone")
+
+			,(input "email" "email")
+
+			,(select-box "product" (map card-name products))
+
+			,(input "quantity" "number")
+
+			(div (@ (class "flex items-center mb-6"))
+			     (div (@ (class "w-1/3")) "")
+			     (div (@ (class "w-2/3"))
+				  (button (@ (class "bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"))
+					  "Send Enquiry")))
+
+			)))
 
     (script "window.bgWhite = true")) 'contact-us)
 
@@ -432,5 +497,8 @@ easier to access.")))
 #!eof
 
 (load "web.scm")
+(load "build.scm")
+
+(generate-site)
 
 (begin )

@@ -4,7 +4,8 @@
 (define generate-site-pages
   (lambda ()
     (generate-index-page)
-    (generate-products-page)))
+    (generate-products-page)
+    (generate-about-page)))
 
 
 (define copy-binary-file
@@ -64,3 +65,4 @@
 (load "web.scm")
 (load "build.scm")
 (generate-site)
+

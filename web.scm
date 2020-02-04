@@ -340,53 +340,88 @@
 
 		     ,@(map footer-list->sxml footer-items)))))
 
+(meta define construct-name
+      (lambda (template-identifier . args)
+	(datum->syntax template-identifier
+		       (string->symbol
+			(apply string-append (map (lambda (x)
+						    (if (string? x)
+							x
+							(symbol->string (syntax->datum x))))
+						  args))))))
 
-(define generate-index-page
-  (lambda ()
-    (with-output-to-file (string-append *dist-directory* "/index.html")
-      (lambda ()
-	(SXML->HTML
-	 (html-template `(body (@ (class "leading-normal tracking-normal text-white gradient")
-				  (style "font-family: 'Source Sans Pro', sans-serif;"))
-			       
-			       ,(navbar 'home '((home . "/") products about))
+(meta define construct-string
+      (lambda (template-identifier . args)
+	(datum->syntax template-identifier
+		       (apply string-append (map (lambda (x)
+						   (if (string? x)
+						       x
+						       (symbol->string (syntax->datum x))))
+						 args)))))
 
-			       ,hero
-
-			       ,wavy-svg
-
-			       ,promise-section
-
-			       ,(product-grid #t)
-
-			       ,contact
-
-			       ,footer
-
-			       (script (@ (type "application/javascript")
-					  (src "scripts/app.js")) " ")))))
-      'replace)))
-
-
-(define generate-products-page
-  (lambda ()
-    (with-output-to-file (string-append *dist-directory* "/products.html")
-      (lambda ()
-	(SXML->HTML
-	 (html-template `(body (@ (class "leading-normal tracking-normal text-white gradient")
-				  (style "font-family: 'Source Sans Pro', sans-serif;"))
-			       
-			       ,(navbar 'products '((home . "/") products about))
+(define-syntax define-page
+  (lambda (stx)
+    (syntax-case stx ()
+      ((_ page-name content)
+       (with-syntax ((gen-lambda (construct-name #'page-name "generate-" #'page-name "-page"))
+		     (dist-page (construct-string #'page-name "/" #'page-name ".html")))
+	 #'(define gen-lambda
+	     (lambda ()
+	       (with-output-to-file (string-append *dist-directory* dist-page)
+		 (lambda ()
+		   (SXML->HTML (html-template content)))
+		 'replace))))))))
 
 
-			       ,(product-grid #f)
 
-			       ,footer
+(define-page index
+  `(body (@ (class "leading-normal tracking-normal text-white gradient")
+	    (style "font-family: 'Source Sans Pro', sans-serif;"))
+	 
+	 ,(navbar 'home '((home . "/") products about))
 
-			       (script "window.bgWhite = true")
+	 ,hero
 
-			       (script (@ (src "/scripts/app.js")) " ")))))
-      'replace)))
+	 ,wavy-svg
+
+	 ,promise-section
+
+	 ,(product-grid #t)
+
+	 ,contact
+
+	 ,footer
+
+	 (script (@ (type "application/javascript")
+		    (src "scripts/app.js")) " ")))
+
+(define-page products
+  `(body (@ (class "leading-normal tracking-normal text-white gradient")
+	    (style "font-family: 'Source Sans Pro', sans-serif;"))
+	 
+	 ,(navbar 'products '((home . "/") products about))
+
+
+	 ,(product-grid #f)
+
+	 ,footer
+
+	 (script "window.bgWhite = true")
+
+	 (script (@ (src "/scripts/app.js")) " ")))
+
+
+(define-page about
+  `(body (@ (class "leading-normal tracking-normal text-white gradient")
+	    (style "font-family: 'Source Sans Pro', sans-serif;"))
+
+	 ,(navbar 'about '((home . "/") products about))
+
+	 ,footer
+
+	 (script "window.bgWhite = true")
+
+	 (script (@ (src "/scripts/app.js")) " ")))
 
 
 #!eof

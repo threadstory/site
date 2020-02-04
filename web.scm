@@ -411,11 +411,23 @@
 	 (script (@ (src "/scripts/app.js")) " ")))
 
 
+(define about-section
+  `(section (@ (class "bg-white border-b py-12"))
+	    (div (@ (class "container max-w-5xl mx-auto m-8 py-8"))
+
+		 ,@(section-title "About Us")
+
+		 (div (@ (class "w-full text-center text-black py-8"))
+		      "Group of people highly comitted to bring quality craftmanship 
+easier to access."))))
+
 (define-page about
   `(body (@ (class "leading-normal tracking-normal text-white gradient")
 	    (style "font-family: 'Source Sans Pro', sans-serif;"))
 
 	 ,(navbar 'about '((home . "/") products about))
+
+	 ,about-section
 
 	 ,footer
 

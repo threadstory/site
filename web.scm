@@ -373,42 +373,36 @@
 		 'replace))))))))
 
 
+;; macro with site template
 
-(define-page index
-  `(body (@ (class "leading-normal tracking-normal text-white gradient")
-	    (style "font-family: 'Source Sans Pro', sans-serif;"))
-	 
-	 ,(navbar 'home '((home . "/") products about))
+(define-syntax define-threadstory-page
+  (syntax-rules ()
+    ((_ page-name content)
+     (define-page page-name
+       `(body (@ (class "leading-normal tracking-normal text-white gradient")
+		 (style "font-family: 'Source Sans Pro', sans-serif;"))
+	      
+	      ,(navbar 'home '((home . "/") products about))
 
-	 ,hero
+	      ,@content
 
-	 ,wavy-svg
+	      ,footer
 
-	 ,promise-section
-
-	 ,(product-grid #t)
-
-	 ,contact
-
-	 ,footer
-
-	 (script (@ (type "application/javascript")
-		    (src "scripts/app.js")) " ")))
-
-(define-page products
-  `(body (@ (class "leading-normal tracking-normal text-white gradient")
-	    (style "font-family: 'Source Sans Pro', sans-serif;"))
-	 
-	 ,(navbar 'products '((home . "/") products about))
+	      (script (@ (type "application/javascript")
+			 (src "scripts/app.js")) " "))))))
 
 
-	 ,(product-grid #f)
 
-	 ,footer
 
-	 (script "window.bgWhite = true")
+(define-threadstory-page index (list hero
+				     wavy-svg
+				     promise-section
+				     (product-grid #t)
+				     contact))
 
-	 (script (@ (src "/scripts/app.js")) " ")))
+
+(define-threadstory-page products `(,(product-grid #f)
+				    (script "window.bgWhite = true")))
 
 
 (define about-section
@@ -421,19 +415,8 @@
 		      "Group of people highly comitted to bring quality craftmanship 
 easier to access."))))
 
-(define-page about
-  `(body (@ (class "leading-normal tracking-normal text-white gradient")
-	    (style "font-family: 'Source Sans Pro', sans-serif;"))
-
-	 ,(navbar 'about '((home . "/") products about))
-
-	 ,about-section
-
-	 ,footer
-
-	 (script "window.bgWhite = true")
-
-	 (script (@ (src "/scripts/app.js")) " ")))
+(define-threadstory-page about `(,about-section
+				 (script "window.bgWhite = true")))
 
 
 #!eof

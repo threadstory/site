@@ -5,7 +5,8 @@
   (lambda ()
     (generate-index-page)
     (generate-products-page)
-    (generate-about-page)))
+    (generate-about-page)
+    (generate-contact-us-page)))
 
 
 (define copy-binary-file

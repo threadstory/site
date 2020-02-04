@@ -110,12 +110,13 @@
 
 			,(navbar-items)
 
-			(button (@ (id "navAction")
-				   ,(classes '(mx-auto lg:mx-0 hover:underline bg-white
-						       text-gray-800 font-bold rounded-full
-						       mt-4 lg:mt-0 py-4 px-8 shadow
-						       opacity-75)))
-				"Contact us")))))))
+			(a (@ (href "/contact-us.html"))
+			   (button (@ (id "navAction")
+				      ,(classes '(mx-auto lg:mx-0 hover:underline bg-white
+							  text-gray-800 font-bold rounded-full
+							  mt-4 lg:mt-0 py-4 px-8 shadow
+							  opacity-75)))
+				   "Contact us"))))))))
 
 
 ;; (navbar 'home '((home . "/") products about))
@@ -340,6 +341,8 @@
 
 		     ,@(map footer-list->sxml footer-items)))))
 
+
+
 (meta define construct-name
       (lambda (template-identifier . args)
 	(datum->syntax template-identifier
@@ -377,12 +380,12 @@
 
 (define-syntax define-threadstory-page
   (syntax-rules ()
-    ((_ page-name content)
+    ((_ page-name content active-page)
      (define-page page-name
        `(body (@ (class "leading-normal tracking-normal text-white gradient")
 		 (style "font-family: 'Source Sans Pro', sans-serif;"))
 	      
-	      ,(navbar 'home '((home . "/") products about))
+	      ,(navbar active-page '((home . "/") products about))
 
 	      ,@content
 
@@ -398,25 +401,32 @@
 				     wavy-svg
 				     promise-section
 				     (product-grid #t)
-				     contact))
+				     contact) 'home)
 
 
 (define-threadstory-page products `(,(product-grid #f)
-				    (script "window.bgWhite = true")))
+				    (script "window.bgWhite = true")) 'products)
 
 
-(define about-section
-  `(section (@ (class "bg-white border-b py-12"))
-	    (div (@ (class "container max-w-5xl mx-auto m-8 py-8"))
+(define-threadstory-page about
+  `((section (@ (class "bg-white border-b py-12"))
+	     (div (@ (class "container max-w-5xl mx-auto m-8 py-8"))
 
-		 ,@(section-title "About Us")
+		  ,@(section-title "About Us")
 
-		 (div (@ (class "w-full text-center text-black py-8"))
-		      "Group of people highly comitted to bring quality craftmanship 
-easier to access."))))
+		  (div (@ (class "w-full text-center text-black py-8"))
+		       "Group of people highly comitted to bring quality craftmanship 
+easier to access.")))
+    (script "window.bgWhite = true")) 'about)
 
-(define-threadstory-page about `(,about-section
-				 (script "window.bgWhite = true")))
+
+(define-threadstory-page contact-us
+  `((section (@ (class "bg-white border-b py-12"))
+	     (div (@ (class "container max-w-5xl mx-auto m-8 py-8"))
+
+		  ,@(section-title "Contact us")))
+
+    (script "window.bgWhite = true")) 'contact-us)
 
 
 #!eof

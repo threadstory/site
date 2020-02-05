@@ -127,20 +127,21 @@
 				      items-center)))
 
 	     ;; left column
-	     (div (@ ,(classes '(flex flex-col w-full md:w-2/5 justify-center items-start
+	     (div (@ ,(classes '(flex flex-col w-full md:w-2/5 justify-center items-center
 				      text-center md:text-left)))
 		  (p (@ (class "uppercase tracking-loose w-full"))
 		     "Custom Merchandise made easy")
 		  (h1 (@ (class "my-4 text-5xl font-bold leading-tight"))
 		      "One stop shop for all your branding needs!")
 		  (p (@ (class "leading-normal text-2xl mb-8"))
-		     "We work hard to get you the best quality available in the marker.")
+		     "We work hard to get you the best quality available in the market.")
 
-		  (a (@ (href "/products.html"))
+		  (a (@ (href "/contact.html")
+			(class "items-center"))
 		     (button (@ ,(classes '(mx-auto lg:mx-0 hover:underline bg-white
 						    text-gray-800 font-bold rounded-full my-6
 						    py-4 px-8 shadow-lg)))
-			     "View Products")))
+			     "Contact Us")))
 
 	     ;; right column
 	     (div (@ (class "w-full md:w-3/5 py-6 text-center"))
@@ -201,22 +202,22 @@
 		 ,@(section-title "Our Promise")
 		 
 		 
-		 (div (@ (class "flex flex-wrap"))
+		 (div (@ (class "flex flex-wrap items-center"))
 		      
-		      (div (@ (class "w-5/6 sm:w-1/2 p-6"))
+		      (div (@ (class "w-5/6 sm:w-1/2 p-6 container mx-auto"))
 			   ,(title "Express your brand")
 			   (p (@ (class "text-gray-600 mb-8"))
 			      "Your brand should be on the finest of product."))
 
 		      (div (@ (class "w-full sm:w-1/2 p-6"))
 			   (img (@ (class "w-full sm:h-64 mx-auto")
-				   (src "pictures/brand.webp")))))
+				   (src "pictures/branding.svg")))))
 
 		 (div (@ (class "flex flex-wrap flex-col-reverse sm:flex-row"))
 
-		      (div (@ (class "w-full sm:w-1/2 p-6 mt-6"))
+		      (div (@ (class "w-full sm:w-1/2 p-6 mt-6 container mx-auto"))
 			   (img (@ (class "w-full sm:h-64 mx-auto")
-				   (src "pictures/brand.webp"))))
+				   (src "pictures/materials.svg"))))
 		      
 		      (div (@ (class "w-full sm:w-1/2 p-6 mt-6"))
 			   (div (@ (class "align-middle"))
@@ -320,27 +321,27 @@
 		 ,@(map (lambda (i)
 			  `(li (@ (class "mt-2 inline-block mr-2 md:block md:mr-0"))
 			       (a (@ (href "#")
-				     ,(classes '(no-underline hover:underline text-gray-800
+				     ,(classes '(no-underline hover:underline text-white
 							      hover:text-orange-500)))
 				  ,(string-titlecase (symbol->string i)))))
 			(footer-list-items footer-list)))))))
 
 (define footer
-  `(footer (@ (class "bg-white"))
-	   (div (@ (class "container mx-auto px-8"))
+  `(footer 
+    (div (@ (class "container mx-auto px-8 text-white"))
 
-		(div (@ (class "w-full flex flex-col md:flex-row py-6"))
+	 (div (@ (class "w-full flex flex-col md:flex-row py-6"))
 
-		     (div (@ (class "flex-1 mb-6"))
+	      (div (@ (class "flex-1 mb-6"))
 
-			  (a (@ ,(classes '(text-black no-underline font-bold text-2xl
-						       lg:text-4xl))
-				(href "#"))
-			     (img (@ (class "h-8 fill-current inline")
-				     (src "https://threadstory.in/image/ts-logo.svg")))
-			     "Threadstory"))
+		   (a (@ ,(classes '(text-white no-underline font-bold text-2xl
+						lg:text-4xl))
+			 (href "#"))
+		      (img (@ (class "h-8 fill-current inline")
+			      (src "https://threadstory.in/image/ts-logo.svg")))
+		      "Threadstory"))
 
-		     ,@(map footer-list->sxml footer-items)))))
+	      ,@(map footer-list->sxml footer-items)))))
 
 
 
@@ -402,7 +403,8 @@
 				     wavy-svg
 				     promise-section
 				     (product-grid #t)
-				     contact) 'home)
+				     ;; contact
+				     ) 'home)
 
 
 (define-threadstory-page products `(,(product-grid #f)

@@ -59,7 +59,8 @@
   (ensure-directory *dist-directory*)
   (generate-site-pages)
   (copy-folder "pictures")
-  (compile-javascript "app.js.scm"))
+  (copy-binary-file "contact-us.js" "dist/scripts/contact-us.js")
+  (compile-javascript "app.js.scm" ))
 
 #!eof
 

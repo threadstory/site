@@ -442,6 +442,7 @@ easier to access.")))
 				    w-full py-2 px-4 text-gray-700
 				    leading-tight focus:outline-none
 				    focus:bg-white focus:border-purple-500))
+		    (required "true")
 		    (type ,type)
 		    (id ,input-name))
 		 ""))))))
@@ -458,7 +459,8 @@ easier to access.")))
 	
 	(div (@ (class "w-2/3"))
 	     (div (@ (class "relative"))
-		  (select (@ (class "block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"))
+		  (select (@ (class "block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500")
+			     (id ,input-name))
 			  ,@(map (lambda (o) `(option ,o)) options))
 		  (div (@ (class "pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"))
 		       (svg (@ (class "fill-current h-4 w-4")
@@ -477,7 +479,7 @@ easier to access.")))
 
 			,(input "name")
 
-			,(input "phone")
+			,(input "phone" "tel")
 
 			,(input "email" "email")
 
@@ -488,11 +490,23 @@ easier to access.")))
 			(div (@ (class "flex items-center mb-6"))
 			     (div (@ (class "w-1/3")) "")
 			     (div (@ (class "w-2/3"))
-				  (button (@ (class "bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"))
+				  (button (@ (class "bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded")
+					     (id "send-enquiry"))
 					  "Send Enquiry"))))))
 
-    (script "window.bgWhite = true")) 'contact-us)
+    (script "window.bgWhite = true")
+    (script (@ (type "application/javascript")
+	       (src "scripts/contact-us.js")) "")) 'contact-us)
 
+;; read contacts
+;;
+(with-input-from-file "server/contacts.scm"
+  (lambda ()
+    (let lp ((ch (read))
+	     (xs (list)))
+      (cond
+       ((eof-object? ch) (reverse xs))
+       (else (lp (read) (cons ch xs)))))))
 
 #!eof
 

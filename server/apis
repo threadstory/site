@@ -1,9 +1,9 @@
-POST http://localhost:8000/contact-us
+POST http://localhost:9090/contact-us
 Content-Type: application/json
 
 {
 	"info": {
-	    "name": "Akash16",
+	    "name": "Akash15",
 	    "phone": "asbc"
 	}
 }

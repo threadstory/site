@@ -79,8 +79,8 @@
 
 (define-values (app-dispatch vcr-url)
   (dispatch-rules
-   [("contact-us") #:method "post" contact-us]
    [("contact-us") #:method "options" options]
+   [("contact-us") #:method "post" contact-us]
    [("hello") json-response]))
 
 

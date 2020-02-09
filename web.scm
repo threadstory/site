@@ -136,7 +136,7 @@
 		  (p (@ (class "leading-normal text-2xl mb-8"))
 		     "We work hard to get you the best quality available in the market.")
 
-		  (a (@ (href "/contact.html")
+		  (a (@ (href "/contact-us.html")
 			(class "items-center"))
 		     (button (@ ,(classes '(mx-auto lg:mx-0 hover:underline bg-white
 						    text-gray-800 font-bold rounded-full my-6
@@ -492,7 +492,32 @@ easier to access.")))
 			     (div (@ (class "w-2/3"))
 				  (button (@ (class "bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded")
 					     (id "send-enquiry"))
-					  "Send Enquiry"))))))
+					  "Send Enquiry"))))
+
+
+		  (div (@ (class "container mx-auto"))
+		       (div (@ (class "bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md hidden")
+			       (role "alert")
+			       (id "success-message"))
+			    (div (@ (class "flex"))
+				 (div (@ (class "py-1"))
+				      (svg (@ (class "fill-current h-6 w-6 text-teal-500 mr-4")
+					      (xmlns "http://www.w3.org/2000/svg")
+					      (viewBox "0 0 20 20"))
+					   (path (@ (d "M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z")))))
+				 (div (p (@ (class "font-bold"))
+					 "Your query has been recorded.")
+				      (p (@ (class "text-sm"))
+					 "We will get back to you in 12 hours"))))
+
+		       (div (@ (role "alert")
+			       (class "hidden")
+			       (id "error-message"))
+			    (div (@ (class "bg-red-500 text-white font-bold rounded-t px-4 py-2"))
+				 "Error")
+			    (div (@ (class "border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700")
+				    (id "error-text"))
+				 "Could not record your query. Please call us @ +91-7004282702")))))
 
     (script "window.bgWhite = true")
     (script (@ (type "application/javascript")

@@ -1,0 +1,12 @@
+POST http://localhost:8000/contact-us
+Content-Type: application/json
+
+{
+	"info": {
+	    "name": "Akash16",
+	    "phone": "asbc"
+	}
+}
+
+
+# asas

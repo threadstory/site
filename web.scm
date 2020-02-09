@@ -1,4 +1,4 @@
-(library-directories '("./thunderchez" "."))
+(library-directories '("./thunderchez" "./chez-socket" "."))
 
 (import (sxml to-html)
 	
@@ -92,7 +92,7 @@
 		       "Threadstory"))
 
 	       ;; hamburger
-	       (div (@ (class "block lg:hidden pr-4 text-black")
+	       (div (@ (class "block lg:hidden pr-4 text-white")
 		       (id "nav-toggle"))
 		    (button (@ ,(classes '(flex items-center p-1)))
 			    (svg (@ (class "fill-current h-6 w-6")
@@ -473,7 +473,7 @@ easier to access.")))
 
 		  ,@(section-title "Contact us")
 
-		  (form (@ (class "w-full max-w-sm py-12 container mx-auto"))
+		  (form (@ (class "w-full max-w-sm py-12 container mx-auto px-8"))
 
 			,(input "name")
 
@@ -489,9 +489,7 @@ easier to access.")))
 			     (div (@ (class "w-1/3")) "")
 			     (div (@ (class "w-2/3"))
 				  (button (@ (class "bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"))
-					  "Send Enquiry")))
-
-			)))
+					  "Send Enquiry"))))))
 
     (script "window.bgWhite = true")) 'contact-us)
 

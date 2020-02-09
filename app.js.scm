@@ -13,6 +13,9 @@
 (define-syntax-rule (remove-class e classes ...)
   (%inline ".classList.remove" e classes ...))
 
+(define-syntax-rule (contains-class? e class)
+  (%inline ".classList.contains" e class))
+
 
 (define (setup-navbar)
   
@@ -44,8 +47,9 @@
 			       (remove-class e "text-white" "hover:text-black")
 			       (add-class e "text-black" "hover:text-green-800"))))
 
-	  (remove-class active-nav "text-black")
-	  (add-class active-nav "text-green-800")
+	  (when (and (not (null? active-nav)) (contains-class? active-nav "text-black"))
+	    (remove-class active-nav "text-black")
+	    (add-class active-nav "text-green-800"))
 	  
 	  (add-class navcontent "bg-white")
 	  (remove-class navcontent "bg-gray-100")

@@ -5,8 +5,13 @@
 	(srfi s1 lists)
 	(srfi s13 strings))
 
-;; (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
-(define +tailwind-css-url+ "./base.css")
+
+(define *threadstory-email* "contact@threadstory.in")
+(define *threadstory-phone* "+91-9090701366")
+
+
+(define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
+;; (define +tailwind-css-url+ "./base.css")
 (define +font-url+ "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700")
 
 (define *dist-directory* "dist")
@@ -62,18 +67,18 @@
 			    (cdr item-info)
 			    (string-append "/" (symbol->string item-name) ".html")))
 	     (inactive-classes (if background-white?
-				   (list 'md:text-black 'lg:text-black)
-				   (list 'md:text-white 'lg:text-white)))
+				   (list 'text-black 'text-black)
+				   (list 'text-white 'text-white)))
 	     (color (cond
 		     ((and active? background-white?)
-		      (list 'md:text-green-800 'lg:text-green-800))
+		      (list 'text-green-800 'text-green-800))
 		     
-		     (active? (list 'md:text-black 'lg:text-black))
+		     (active? (list 'text-black 'text-black))
 
 		     (else (cons 'toggleColour inactive-classes))))
 	     (css-classes `(inline-block py-2 px-4 ,@color
 					 no-underline hover:text-black
-					 hover:text-underline sm:text-black)))
+					 hover:text-underline )))
 	`(li (@ (class "mr-3"))
 	     (a (@ ,(classes css-classes)
 		   (href ,item-href)
@@ -313,25 +318,51 @@
 	       (button (@ (class "mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg"))
 		       "Contact us!"))))
 
+(define-record-type footer-item (fields icon label href))
 (define-record-type footer-list (fields title items))
 
-(define footer-items (list (make-footer-list "Links" '(faq help support))
-			   (make-footer-list "Legal" '(terms privacy))
-			   (make-footer-list "Social" '(facebook linkedin twitter))
-			   (make-footer-list "Company" '(blog about contact))))
+
+
+(define footer-items
+  (list
+   (make-footer-list "Contact Info"
+		     (list (make-footer-item "./pictures/mail.svg"
+					     *threadstory-email*
+					     (string-append "mailto:" *threadstory-email*))
+			   (make-footer-item " ./pictures/phone.svg"
+					     *threadstory-phone*
+					     (string-append "tel:" *threadstory-phone*)) 
+			   (make-footer-item "./pictures/whatsapp.svg"
+					     *threadstory-phone*
+					     (string-append "https://api.whatsapp.com/send?phone=" *threadstory-phone*))))
+   (make-footer-list "Legal" '(terms privacy))
+   (make-footer-list "Social" '(facebook linkedin twitter))
+   (make-footer-list "Company" '(blog about contact))))
 
 (define footer-list->sxml
   (lambda (footer-list)
     `(div (@ (class "flex-1"))
-	  (p (@ (class "uppercase text-gray-500 md:mb-6"))
+	  (p (@ (class "uppercase text-white md:mb-6"))
 	     ,(footer-list-title footer-list)
-	     (ul (@ (class "list-reset mb-6"))
+	     (ul (@ (class "list-reset mb-6 text-black"))
 		 ,@(map (lambda (i)
-			  `(li (@ (class "mt-2 inline-block mr-2 md:block md:mr-0"))
-			       (a (@ (href "#")
-				     ,(classes '(no-underline hover:underline text-white
-							      hover:text-orange-500)))
-				  ,(string-titlecase (symbol->string i)))))
+			  (let ((icon (if (footer-item? i)
+					  `((img (@ (src ,(footer-item-icon i))
+						    (classes "fill-black"))))
+					  (list)))
+				(label (if (footer-item? i)
+					   (footer-item-label i)
+					   (string-titlecase (symbol->string i))))
+				(href (if (footer-item? i)
+					  (footer-item-href i)
+					  (string-append "./" (symbol->string i) ".html"))))
+			    `(li (@ (class "mt-2 inline-block mr-2 md:block md:mr-0"))
+				 (div (@ (class "flex flex-column"))
+				      ,@icon
+				      (a (@ (href ,href)
+					    ,(classes '(no-underline hover:underline text-white
+								     hover:text-orange-500 px-2)))
+					 ,label)))))
 			(footer-list-items footer-list)))))))
 
 (define footer

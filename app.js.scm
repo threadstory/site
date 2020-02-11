@@ -94,9 +94,18 @@
 
   (define nav-callback
     (lambda (e)
+      (define to-toggle (query-selector-all ".toggleColour"))
       (if *drawer-open*
-      	  (add-class nav-menu-div "hidden")
-	  (remove-class nav-menu-div "hidden"))
+	  (add-class nav-menu-div "hidden")
+      	  
+	  (begin
+	    (remove-class nav-menu-div "hidden")
+
+	    (%inline ".forEach"
+		     to-toggle
+		     (callback (lambda (e)
+				 (remove-class e "text-white" "hover:text-black")
+				 (add-class e "text-black" "hover:text-green-800"))))))
       (set! *drawer-open* (not *drawer-open*))))
 
   (%property-set! .onclick nav-menu (callback nav-callback)))

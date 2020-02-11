@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="29px" height="21px" viewBox="0 0 29 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>close-envelope</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard-Copy-40" transform="translate(-569.000000, -2515.000000)" fill="#FFFFFF">
+            <g id="Group-12" transform="translate(-22.000000, 2348.000000)">
+                <g id="Group-9" transform="translate(591.000000, 137.000000)">
+                    <g id="Group-13" transform="translate(0.000000, 30.000000)">
+                        <g id="close-envelope" transform="translate(0.000000, -0.000000)">
+                            <path d="M14.5,14.5 L10.9122857,11.3597143 L0.654571429,20.1529286 C1.02742857,20.4988571 1.53078571,20.7142857 2.08592857,20.7142857 L26.9140714,20.7142857 C27.4671429,20.7142857 27.9684286,20.4988571 28.3392143,20.1529286 L18.0877143,11.3597143 L14.5,14.5 Z" id="Path"></path>
+                            <path d="M28.3454286,0.561357143 C27.9725714,0.213357143 27.4712857,0 26.9140714,0 L2.08592857,0 C1.53285714,0 1.03157143,0.215428571 0.658714286,0.5655 L14.5,12.4285714 L28.3454286,0.561357143 Z" id="Path"></path>
+                            <polygon id="Path" points="0 1.81871429 0 19.0281429 10.0112143 10.5207857"></polygon>
+                            <polygon id="Path" points="18.9887857 10.5207857 29 19.0281429 29 1.8125"></polygon>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

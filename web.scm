@@ -53,19 +53,26 @@
 
 
 (define navbar
-  (lambda (active-item items)
+  (lambda (active-item items background-white?)
 
     (define (make-nav-item item-info active?)
       (let* ((item-name (if (pair? item-info) (car item-info) item-info))
 	     (item-href (if (pair? item-info)
 			    (cdr item-info)
 			    (string-append "/" (symbol->string item-name) ".html")))
-	     (color (if active?
-			(list 'text-black)
-			(list 'text-white 'toggleColour)))
+	     (inactive-classes (if background-white?
+				   (list 'md:text-black 'lg:text-black)
+				   (list 'md:text-white 'lg:text-white)))
+	     (color (cond
+		     ((and active? background-white?)
+		      (list 'md:text-green-800 'lg:text-green-800))
+		     
+		     (active? (list 'md:text-black 'lg:text-black))
+
+		     (else (cons 'toggleColour inactive-classes))))
 	     (css-classes `(inline-block py-2 px-4 ,@color
 					 no-underline hover:text-black
-					 hover:text-underline)))
+					 hover:text-underline sm:text-black)))
 	`(li (@ (class "mr-3"))
 	     (a (@ ,(classes css-classes)
 		   (href ,item-href)
@@ -102,7 +109,7 @@
 				 (path (@ (d "M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"))))))
 
 	       (div (@ ,(classes '(w-full flex-grow lg:flex lg:items-center lg:w-auto
-					  hidden lg:block mt-2 lg:mt-0 bg-blue-400
+					  hidden lg:block mt-2 lg:mt-0 bg-white
 					  lg:bg-transparent text-black p-4 lg:p-0 z-20))
 		       (id "nav-content"))
 		    (ul (@ ,(classes '(list-reset lg:flex justify-end flex-1
@@ -132,7 +139,7 @@
 		  (p (@ (class "uppercase tracking-loose w-full"))
 		     "Custom Merchandise made easy")
 		  (h1 (@ (class "my-4 text-5xl font-bold leading-tight"))
-		      "One stop shop for all your branding needs!")
+		      "One stop solution for your branding needs!")
 		  (p (@ (class "leading-normal text-2xl mb-8"))
 		     "We work hard to get you the best quality available in the market.")
 
@@ -146,7 +153,7 @@
 	     ;; right column
 	     (div (@ (class "w-full md:w-3/5 py-6 text-center"))
 		  (img (@ (class "w-full md:w-4/5 z-50")
-			  (src "pictures/hero.png")))))))
+			  (src "pictures/brand.svg")))))))
 
 (define wavy-svg
   `(div (@ (class "relative -mt-12 lg:-mt-24"))
@@ -382,12 +389,12 @@
 
 (define-syntax define-threadstory-page
   (syntax-rules ()
-    ((_ page-name content active-page)
+    ((_ page-name content active-page background-white?)
      (define-page page-name
        `(body (@ (class "leading-normal tracking-normal text-white gradient")
 		 (style "font-family: 'Source Sans Pro', sans-serif;"))
 	      
-	      ,(navbar active-page '((home . "/") products about))
+	      ,(navbar active-page '((home . "/") products ) background-white?)
 
 	      ,@content
 
@@ -404,11 +411,11 @@
 				     promise-section
 				     (product-grid #t)
 				     ;; contact
-				     ) 'home)
+				     ) 'home #f)
 
 
 (define-threadstory-page products `(,(product-grid #f)
-				    (script "window.bgWhite = true")) 'products)
+				    (script "window.bgWhite = true")) 'products #t)
 
 
 (define-threadstory-page about
@@ -420,7 +427,7 @@
 		  (div (@ (class "w-full text-center text-black py-8"))
 		       "Group of people highly comitted to bring quality craftmanship 
 easier to access.")))
-    (script "window.bgWhite = true")) 'about)
+    (script "window.bgWhite = true")) 'about #t)
 
 
 (define input
@@ -430,7 +437,7 @@ easier to access.")))
      `(div (@ (class "flex items-center  mb-6"))
 	   (div (@ (class "w-1/3"))
 		(label
-		 (@ ,(classes '(block text-gray-500 font-bold md:text-right
+		 (@ ,(classes '(block text-gray-500 font-bold md:text-center
 				      mb-1 md:mb-0 pr-4 ))
 		    (for ,input-name))
 		 ,(string-titlecase input-name)))
@@ -452,10 +459,10 @@ easier to access.")))
   `(div (@ (class "flex items-center mb-6"))
 	(div (@ (class "w-1/3"))
 	     (label
-	      (@ ,(classes '(block text-gray-500 font-bold md:text-right
+	      (@ ,(classes '(block text-gray-500 font-bold md:text-center
 				   mb-1 md:mb-0 pr-4 ))
 		 (for ,input-name))
-	      ,(string-append "Select " (string-titlecase input-name) ":")))
+	      ,(string-append "Select " (string-titlecase input-name))))
 	
 	(div (@ (class "w-2/3"))
 	     (div (@ (class "relative"))
@@ -475,7 +482,9 @@ easier to access.")))
 
 		  ,@(section-title "Contact us")
 
-		  (form (@ (class "w-full max-w-sm py-12 container mx-auto px-8"))
+		  (div (@ (class "text-center py-8")) (p (@ (class "text-black"))  "Call us at +91-7004282702 or fill this form and we will get back to you."))
+
+		  (form (@ (class "w-full max-w-sm container mx-auto px-8 text-center"))
 
 			,(input "name")
 
@@ -521,7 +530,11 @@ easier to access.")))
 
     (script "window.bgWhite = true")
     (script (@ (type "application/javascript")
-	       (src "scripts/contact-us.js")) "")) 'contact-us)
+	       (src "scripts/contact-us.js")) ""))
+
+  'contact-us
+
+  #t)
 
 ;; read contacts
 ;;

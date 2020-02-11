@@ -10,8 +10,8 @@
 (define *threadstory-phone* "+91-9090701366")
 
 
-(define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
-;; (define +tailwind-css-url+ "./base.css")
+;; (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
+(define +tailwind-css-url+ "./base.css")
 (define +font-url+ "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700")
 
 (define *dist-directory* "dist")
@@ -101,7 +101,7 @@
 						   lg:text-4xl))
 			  (href "/"))
 		       (img (@ (class "h-8 fill-current inline")
-			       (src "https://threadstory.in/image/ts-logo.svg")))
+			       (src "./pictures/ts-logo.svg")))
 		       "Threadstory"))
 
 	       ;; hamburger
@@ -162,7 +162,7 @@
 			  (src "pictures/brand.svg")))))))
 
 (define wavy-svg
-  `(div (@ (class "relative -mt-12 lg:-mt-24"))
+  `(div (@ (class "relative"))
 	(svg (@ (viewBox "0 0 1428 174")
 		(version "1.1")
 		(xmlns "http://www.w3.org/2000/svg")
@@ -377,7 +377,7 @@
 						lg:text-4xl))
 			 (href "#"))
 		      (img (@ (class "h-8 fill-current inline")
-			      (src "https://threadstory.in/image/ts-logo.svg")))
+			      (src "./pictures/ts-logo.svg")))
 		      "Threadstory"))
 
 	      ,@(map footer-list->sxml footer-items)))))
@@ -514,7 +514,7 @@ easier to access.")))
 
 		  ,@(section-title "Contact us")
 
-		  (div (@ (class "text-center py-8")) (p (@ (class "text-black"))  "Call us at +91-7004282702 or fill this form and we will get back to you."))
+		  (div (@ (class "text-center py-8 px-2")) (p (@ (class "text-black"))  "Call us at +91-7004282702 or fill this form and we will get back to you."))
 
 		  (form (@ (class "w-full max-w-sm container mx-auto px-8 text-center"))
 
@@ -558,7 +558,9 @@ easier to access.")))
 				 "Error")
 			    (div (@ (class "border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700")
 				    (id "error-text"))
-				 "Could not record your query. Please call us @ +91-7004282702")))))
+				 ,(string-append
+				   "Could not record your query. Please call us @"
+				   *threadstory-phone*))))))
 
     (script "window.bgWhite = true")
     (script (@ (type "application/javascript")

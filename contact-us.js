@@ -44,7 +44,7 @@ btn.onclick = function (e) {
 		success_message.classList.remove("hidden");
 		error_message.classList.add("hidden");
 	    } else {
-		error_txt.innerHTML = "Could not record your query. Please call us @ +91-7004282702";
+		error_txt.innerHTML = "Could not record your query. Please call us @ +91-9090701366";
 		success_message.classList.add("hidden");
 		error_message.classList.remove("hidden");
 	    }

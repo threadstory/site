@@ -5,7 +5,8 @@
 	(srfi s1 lists)
 	(srfi s13 strings))
 
-(define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
+;; (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
+(define +tailwind-css-url+ "./base.css")
 (define +font-url+ "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700")
 
 (define *dist-directory* "dist")

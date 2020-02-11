@@ -1,0 +1,23 @@
+{
+  "name": "threadstory",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/threadstory/site.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/threadstory/site/issues"
+  },
+  "homepage": "https://github.com/threadstory/site#readme",
+  "dependencies": {
+    "@fullhuman/postcss-purgecss": "^2.0.6",
+    "tailwindcss": "^1.2.0"
+  }
+}

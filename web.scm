@@ -100,8 +100,8 @@
 						   hover:no-underline font-bold text-2xl
 						   lg:text-4xl))
 			  (href "/"))
-		       (img (@ (class "h-8 fill-current inline")
-			       (src "./pictures/ts-logo.svg")))
+		       (img (@ (class "h-8 fill-current inline px-4")
+			       (src "./pictures/ts-white.svg")))
 		       "Threadstory"))
 
 	       ;; hamburger
@@ -360,8 +360,7 @@
 				 (div (@ (class "flex flex-column"))
 				      ,@icon
 				      (a (@ (href ,href)
-					    ,(classes '(no-underline hover:underline text-white
-								     hover:text-orange-500 px-2)))
+					    ,(classes '(no-underline hover:underline text-white px-2)))
 					 ,label)))))
 			(footer-list-items footer-list)))))))
 
@@ -377,8 +376,7 @@
 						lg:text-4xl))
 			 (href "#"))
 		      (img (@ (class "h-8 fill-current inline")
-			      (src "./pictures/ts-logo.svg")))
-		      "Threadstory"))
+			      (src "./pictures/ts-white.svg")))))
 
 	      ,@(map footer-list->sxml footer-items)))))
 

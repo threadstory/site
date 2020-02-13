@@ -10,9 +10,14 @@
 (define *threadstory-email* "contact@threadstory.in")
 (define *threadstory-phone* "+91-9090701366")
 
+(define *build-environment* 'production)
+;; (define *build-environment* 'dev)
 
-(define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
-;; (define +tailwind-css-url+ "./base.css")
+(meta-cond
+ ((equal? *build-environment* 'dev)
+  (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css"))
+ (else
+  (define +tailwind-css-url+ "./base.css")))
 
 (define +font-url+ "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700")
 
@@ -520,8 +525,10 @@ very best of merchandise in India."))
 					     *threadstory-phone*
 					     (string-append "https://api.whatsapp.com/send?phone=" *threadstory-phone*))))
    (make-footer-list "Legal" '(terms privacy))
-   (make-footer-list "Social" '(facebook linkedin twitter))
-   (make-footer-list "Company" '(blog about (contact . "contact-us.html")))))
+   (make-footer-list "Social" '((facebook . "https://www.facebook.com/threadstoryin/")
+				(linkedin . "https://www.linkedin.com/company/threadstory")
+				(twitter . "https://twitter.com/threadstoryin")))
+   (make-footer-list "Company" '(blog about (contact . "/contact-us.html")))))
 
 (define footer-list->sxml
   (lambda (footer-list)
@@ -550,7 +557,7 @@ very best of merchandise in India."))
 				(href (cond
 				       ((footer-item? i) (footer-item-href i))
 				       ;; if item pair then car is label cdr is link
-				       ((pair? i) (string-append "./" (cdr i)))
+				       ((pair? i) (cdr i))
 				       (else (string-append "./"
 							    (if (symbol? i) (symbol->string i) i)
 							    ".html")))))
@@ -630,7 +637,7 @@ very best of merchandise in India."))
        `(body (@ (class "leading-normal tracking-normal text-white gradient")
 		 (style "font-family: 'Source Sans Pro', sans-serif;"))
 	      
-	      ,(navbar active-page '((home . "/") products product-detail) background-white?)
+	      ,(navbar active-page '((home . "/") products) background-white?)
 
 	      ,@content
 

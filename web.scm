@@ -11,7 +11,7 @@
 (define *threadstory-phone* "+91-9090701366")
 
 (define *build-environment* 'production)
-;; (define *build-environment* 'dev)
+(define *build-environment* 'dev)
 
 (define dev-environment?
   (lambda () (equal? *build-environment* 'dev)))
@@ -157,10 +157,66 @@
 ;;;;;;;;;;;;;;;;;;;
 
 
+(define-syntax define-record-with-defaults
+  (lambda (stx)
+    (syntax-case stx ()
+      ((_ record-name (field-info ...))
+       (with-syntax (((field-names ...) (map (lambda (field-value)
+					     (let ((val (syntax->datum field-value)))
+					       (cond
+						((symbol? val) (datum->syntax #'record-name val))
+						((pair? val) (datum->syntax #'record-name (car val)))
+						(else (syntax-error "either a symbol or pair supported")))))
+					   #'(field-info ...)))
+		     (default-constructor (construct-name #'record-name "make-" #'record-name)))
+	 #'(begin (define-record-type record-name (fields field-names ...))
+		  
+		  (trace-define-syntax record-name
+		    (lambda (stx)
+		      
+		      ;; given a list of symbols and a list of pairs
+		      ;; returns list of values associated with the symbols
+		      (define order
+			(lambda (fields field-values-info)
+			  (let ((default-vals (filter (lambda (f) (not (symbol? f))) fields)))
+			    (map (lambda (field)
+				   (cond
+				    ((symbol? field)  (cadr (assoc field field-values-info)))
+				    ((pair? field) (or (cadr (assoc (car field) default-vals))
+						      (cdr field)))
+				    (else (error "wrong value passed to constructor" field))))
+				 fields))))
+		      
+		      (syntax-case stx ()
+			((_ opts (... ...))
+			 (with-syntax (((vals (... ...))
+					(map (lambda (v) (datum->syntax #'record-name v))
+					     (order '(field-info ...)
+						    (map syntax->datum #'(opts (... ...)))))))			   #'(default-constructor vals (... ...)))))))))))))
+
+
+;; constructor takes a plist of values
+;; genrates all the usual record defs
+(define-record-with-defaults input-options
+  (input-name
+   [type "text"]
+   [label-class "w-1/3"]
+   [input-class "w-1/3"]
+   [container-class "flex items-center mb-6"]))
+
+;; (input-options '((type "text")
+;; 		 (label-class "w-1/3")
+;; 		 (input-class "w-1/3")
+;; 		 (container-class "flex items-center  mb-6")))
+
+(input-options [input-name "he"])
+
+
 (define input
   (case-lambda
     ((input-name) (input input-name "text"))
-    ((input-name type)
+    ((input-name type) (input input-name type ))
+    ((input-name type label-class input-class container-class)
      `(div (@ (class "flex items-center  mb-6"))
 	   (div (@ (class "w-1/3"))
 		(label
@@ -450,38 +506,65 @@
 			     )
 			  ,s))))
 	   sizes))
-    
-    `(section (@ (class "bg-white border-b"))
-	      (div (@ (class "flex flex-wrap"))
-		   (img (@ (class "bg-gray-600 w-auto bg-fixed")
-			   (src "pictures/tshirt.webp")))
 
-		   (div (@ (class "flex flex-col  w-screen shadow-2xl bg-white px-4"))
+    (define label
+      (lambda (txt)
+	`(div (@ (class "text-xl text-black py-3 px-2 bold")) ,txt)))
+    
+    `(section (@ (class "bg-white border-b w-screen py-8 align-middle"))
+	      (div (@ (class "flex flex-row flex-wrap container mx-auto py-8 "))
+
+		   (img (@ (class "flex-1 bg-fixed py-8")
+			   (src "pictures/tshirt.webp")))
+		   
+		   (div (@ (class "flex-1 flex-col w-screen shadow-2xl bg-white px-4 py-8 z-3"))
 			
 			
 			(div (@ (class "font-extrabold text-4xl text-black"))
 			     "Round neck t-shirt")
 
 			(div (@ (class "flex flex-row"))
+
+			     ,(label "Choose color: ")
 			     
 			     ,@(color-circles "purple" "black" "blue" "red" "green")
 			     ,(svg-circle '(@ (class "fill-current text-purple-500 inline-block h-20 w-16")
 					      (stroke-width "3")
 					      (stroke "red"))
 					  30 30 18))
+			
+			(div (@ (class "flex flex-row w-auto"))
 
-			(div (@ (class "flex flex-row"))
-			     ,(size-selector "Small" "Medium" "Large"))
+			     ,(label "Choose size:")
+			     
+			     (div (@ (class "flex flex-row "))
+				  ,(size-selector "Small" "Medium" "Large")))
 
 			(div (@ (class "flex flex-col"))
-			     (div (@ (class "text-xl text-black py-3 px-2 bold"))
-				  "Description")
+			     ,(label "Upload design:")
+			     (div (@ (class "overflow-hidden relative text-center"))
+				  (button (@ ,(classes (quote (py-2 px-4 w-full inline-flex items-center
+								    bg-gray-200 text-gray-700 border
+								    border-gray-200 rounded
+								    hover:border-gray-500 h-32
+								    text-center))))
+					  (span
+					   (@ (class "container mx-auto w-full"))
+					   "Browse Files")
+					  (input (@ (class "cursor-pointer absolute block opacity-0 pin-r pin-t")
+						    (type "file"))))))
+
+			(div (@ (class "flex flex-col"))
+			     ,(label "Description:")
 			     (div (@ (class "text-lg text-black px-2"))
 				  "Handcrafted quality, best of class materials. Presenting you the 
 very best of merchandise in India."))
 
-			
 
+			(div (@ (class "w-full px-8 text-center container mx-auto py-4"))
+			     ,(input "Name")
+			     ,(input "Phone" "tel"))
+			
 			(div (@ (class "flex flex-col px-2 py-5"))
 			     (button (@ ,(classes order-button-style))
 				     "Request samples")))))))

@@ -43,6 +43,10 @@
 	 (directory-list src-folder))))
 
 
+(define (purge-css)
+  (displayln "purgin css")
+  (system (string-append "postcss -o dist/base.css css/base.css")))
+
 
 (define (compile-javascript . files)
   (let ((dest-folder (construct-paths *dist-directory* "scripts")))
@@ -55,12 +59,30 @@
 	 files)))
 
 
+(define (compress-js . js-files)
+  (displayln "compressing js")
+  (for-each (lambda (file)
+	      (system (string-append "uglifyjs " file " -o dist/scripts/" file)))
+	    js-files))
+
+(define (compress-pictures)
+  (displayln "compressing pictures")
+  (system "imagemin --plugin.webp.quality=50 pictures/* --out-dir=dist/pictures/")
+  (system "~/apps/pingo -strip dist/pictures/"))
+
+(define (package-html)
+  (system "tar -cvf server.tar.gz dist/"))
+
 (define (generate-site)
   (ensure-directory *dist-directory*)
   (generate-site-pages)
   (copy-folder "pictures")
   (copy-binary-file "contact-us.js" "dist/scripts/contact-us.js")
-  (compile-javascript "app.js.scm" ))
+  (compile-javascript "app.js.scm" )
+  (when (prod-environment?)
+    (begin (purge-css)
+	   (compress-js "app.js" "contact-us.js")
+	   (compress-pictures))))
 
 #!eof
 

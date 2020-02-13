@@ -13,8 +13,14 @@
 (define *build-environment* 'production)
 ;; (define *build-environment* 'dev)
 
+(define dev-environment?
+  (lambda () (equal? *build-environment* 'dev)))
+
+(define prod-environment?
+  (lambda () (equal? *build-environment* 'production)))
+
 (meta-cond
- ((equal? *build-environment* 'dev)
+ ((dev-environment?)
   (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css"))
  (else
   (define +tailwind-css-url+ "./base.css")))
@@ -83,13 +89,13 @@
 				   (list 'text-white 'text-white)))
 	     (color (cond
 		     ((and active? background-white?)
-		      (list 'text-green-800 'text-green-800))
+		      (list 'text-green-800 'font-bold))
 		     
 		     (active? (list 'text-white 'font-bold))
 
 		     (else (cons 'toggleColour inactive-classes))))
 	     (css-classes `(inline-block py-2 px-4 ,@color
-					 no-underline hover:text-black
+					 no-underline hover:font-bold
 					 hover:text-underline )))
 	`(li (@ (class "mr-3"))
 	     (a (@ ,(classes css-classes)
@@ -448,7 +454,7 @@
     `(section (@ (class "bg-white border-b"))
 	      (div (@ (class "flex flex-wrap"))
 		   (img (@ (class "bg-gray-600 w-auto bg-fixed")
-			   (src "pictures/tshirt.jpeg")))
+			   (src "pictures/tshirt.webp")))
 
 		   (div (@ (class "flex flex-col  w-screen shadow-2xl bg-white px-4"))
 			
@@ -528,7 +534,8 @@ very best of merchandise in India."))
    (make-footer-list "Social" '((facebook . "https://www.facebook.com/threadstoryin/")
 				(linkedin . "https://www.linkedin.com/company/threadstory")
 				(twitter . "https://twitter.com/threadstoryin")))
-   (make-footer-list "Company" '(blog about (contact . "/contact-us.html")))))
+   ;; blog about 
+   (make-footer-list "Company" '((contact . "/contact-us.html")))))
 
 (define footer-list->sxml
   (lambda (footer-list)

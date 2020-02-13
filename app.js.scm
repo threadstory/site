@@ -16,21 +16,20 @@
 (define-syntax-rule (contains-class? e class)
   (%inline ".classList.contains" e class))
 
+(define header (get-element-by-id "header"))
+(define navcontent (get-element-by-id "nav-content"))
+(define navaction (get-element-by-id "navAction"))
+(define brandname (get-element-by-id "brandname"))
+(define to-toggle (query-selector-all ".toggleColour"))
+
+;; this may not work when we include client side routing
+(define active-nav (get-element-by-id "active-nav"))
+;; (define navs (query-selector-all ".nav"))
+
+(define nav-menu (get-element-by-id "nav-toggle"))
 
 (define (setup-navbar)
   
-  (define header (get-element-by-id "header"))
-  (define navcontent (get-element-by-id "nav-content"))
-  (define navaction (get-element-by-id "navAction"))
-  (define brandname (get-element-by-id "brandname"))
-  (define to-toggle (query-selector-all ".toggleColour"))
-
-  ;; this may not work when we include client side routing
-  (define active-nav (get-element-by-id "active-nav"))
-  ;; (define navs (query-selector-all ".nav"))
-
-  (define nav-menu (get-element-by-id "nav-toggle"))
-
   ;; todo cleanup this function
   (define (change-navbar-background background-white?)
     (print "bg white " background-white?)
@@ -44,7 +43,7 @@
 	  (%inline ".forEach"
 		   to-toggle
 		   (callback (lambda (e)
-			       (remove-class e "text-white" "hover:text-black")
+			       (remove-class e "text-white")
 			       (add-class e "text-black" "hover:text-green-800"))))
 
 	  (when (and (not (null? active-nav)) (contains-class? active-nav "text-black"))
@@ -65,7 +64,7 @@
 	  (%inline ".forEach" to-toggle (callback
 					 (lambda (e)
 					   (remove-class e "text-black" "hover:text-green-800")
-					   (add-class e "text-white" "hover:text-black"))))
+					   (add-class e "text-white"))))
 
 	  (remove-class active-nav "text-green-800")
 	  (add-class active-nav "text-black")
@@ -105,7 +104,10 @@
 		     to-toggle
 		     (callback (lambda (e)
 				 (remove-class e "text-white" "hover:text-black")
-				 (add-class e "text-black" "hover:text-green-800"))))))
+				 (add-class e "text-black" "hover:text-green-800"))))
+
+	    (remove-class active-nav "text-white")
+	    (add-class active-nav "text-black")))
       (set! *drawer-open* (not *drawer-open*))))
 
   (%property-set! .onclick nav-menu (callback nav-callback)))

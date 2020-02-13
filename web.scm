@@ -1,17 +1,19 @@
-(library-directories '("./thunderchez" "./chez-socket" "."))
+(library-directories '("./thunderchez" "."))
 
 (import (sxml to-html)
 	
 	(srfi s1 lists)
-	(srfi s13 strings))
+	(srfi s13 strings)
 
+	(prelude))
 
 (define *threadstory-email* "contact@threadstory.in")
 (define *threadstory-phone* "+91-9090701366")
 
 
-;; (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
-(define +tailwind-css-url+ "./base.css")
+(define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css")
+;; (define +tailwind-css-url+ "./base.css")
+
 (define +font-url+ "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700")
 
 (define *dist-directory* "dist")
@@ -56,6 +58,23 @@
 			       (symbol->string (syntax->datum stx)))
 			     cs)
 			" ")))
+
+(define-client-script! (lambda ()
+			 (define size-elements
+			   (map (lambda (s) (get-element-by-id (string-append "size-" s))) sizes))
+
+			 (define active-element? (lambda (e) (class-contains? element "active")))
+
+			 (define set-element-active! (lambda (e) (add-class element "active")))
+
+			 (define active-colors (cdr (assoc 'active colors)))
+			 (define inactive-colors (cdr (assoc 'inactive colors)))
+
+			 #f))
+
+;;;;;;;;;;;;
+;; navbar ;;
+;;;;;;;;;;;;
 
 
 (define navbar
@@ -133,6 +152,61 @@
 
 
 ;; (navbar 'home '((home . "/") products about))
+
+;;;;;;;;;;;;;;;;;;;
+;; form elements ;;
+;;;;;;;;;;;;;;;;;;;
+
+
+(define input
+  (case-lambda
+    ((input-name) (input input-name "text"))
+    ((input-name type)
+     `(div (@ (class "flex items-center  mb-6"))
+	   (div (@ (class "w-1/3"))
+		(label
+		 (@ ,(classes '(block text-gray-500 font-bold md:text-center
+				      mb-1 md:mb-0 pr-4 ))
+		    (for ,input-name))
+		 ,(string-titlecase input-name)))
+	   (div (@ (class "w-2/3"))
+		(input
+		 (@ ,(classes
+		      '(bg-gray-200 appearance-none border-2
+				    border-gray-200 rounded
+				    w-full py-2 px-4 text-gray-700
+				    leading-tight focus:outline-none
+				    focus:bg-white focus:border-purple-500))
+		    (required "true")
+		    (type ,type)
+		    (id ,input-name))
+		 ""))))))
+
+
+(define (select-box input-name options)
+  `(div (@ (class "flex items-center mb-6"))
+	(div (@ (class "w-1/3"))
+	     (label
+	      (@ ,(classes '(block text-gray-500 font-bold md:text-center
+				   mb-1 md:mb-0 pr-4 ))
+		 (for ,input-name))
+	      ,(string-append "Select " (string-titlecase input-name))))
+	
+	(div (@ (class "w-2/3"))
+	     (div (@ (class "relative"))
+		  (select (@ (class "block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500")
+			     (id ,input-name))
+			  ,@(map (lambda (o) `(option ,o)) options))
+		  (div (@ (class "pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"))
+		       (svg (@ (class "fill-current h-4 w-4")
+			       (xmlns "http://www.w3.org/2000/svg")
+			       (viewBox "0 0 20 20"))
+			    (path (@ (d "M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z")))))))))
+
+
+;;;;;;;;;;;
+;; hero  ;;
+;;;;;;;;;;;
 
 (define hero
   `(div (@ (class "pt-24"))
@@ -238,8 +312,11 @@
 			   (p (@ (class "text-gray-600 mb-8"))
 			      "Your brand should be on the finest of product."))))))
 
-(define-record-type card (fields name description image))
+;;;;;;;;;;;
+;; cards ;;
+;;;;;;;;;;;
 
+(define-record-type card (fields name description image))
 
 (define (cards->sxml cards)
   (define (card->sxml card)
@@ -257,7 +334,9 @@
   `(div (@ (class "flex-wrap flex max-w-6xl mx-auto"))
 	,@(map card->sxml cards)))
 
-
+;;;;;;;;;;;;;;
+;; products ;;
+;;;;;;;;;;;;;;
 
 (define products (list (make-card "Hoodies"
 				  "Comfortable pullovers for your winters"
@@ -301,6 +380,117 @@
 			   (src "pictures/wave-top.svg")))))))
 
 
+;;;;;;;;;;;;;;;;;;;;;
+;; product details ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+(define svg-circle
+  (lambda (attrs cx cy r)
+    `(svg ,attrs
+	  (circle (@ (cx ,(number->string cx))
+		     (cy ,(number->string cy))
+		     (r ,(number->string r)))))))
+
+(define (color-circles . colors)
+  (map (lambda (c)
+	 (let ((color (string->symbol (string-append "text-" c "-500"))))
+	   (svg-circle `(@ ,(classes `(,color fill-current inline-block h-12 w-12)))
+		       30 30 12)))
+       colors))
+
+(define product-detail
+  (lambda (product)
+    (define size-selector-style '(bg-transparent bg-blue-500 text-white font-semibold
+						 hover:text-black py-2 px-4 border border-blue-500
+						 hover:border-transparent rounded))
+
+
+    (define order-button-style '(bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4
+					     border-b-4 border-blue-700 hover:border-blue-500
+					     rounded))
+
+
+    (define colors (quote ((active . (text-black hover:text-white))
+			   (inactive . (text-white hover:text-black)))))
+
+    (define (size-selector . sizes)
+      ;; js as side effect for now
+      (define-client-script! (lambda ()
+			       (define size-elements
+				 (map (lambda (s) (get-element-by-id (string-append "size-" s))) sizes))
+
+			       (define active-element? (lambda (e) (class-contains? element "active")))
+
+			       (define set-element-active! (lambda (e) (add-class element "active")))
+
+			       (define active-colors (cdr (assoc 'active colors)))
+			       (define inactive-colors (cdr (assoc 'inactive colors)))
+
+			       #f))
+
+      ;; html
+      (map (lambda (s)
+	     (let ((id (string-append "size-"  s)))
+	       `(div (@ (class "w-1/3 p-1 text-center"))
+		     (div (@ ,(classes size-selector-style)
+			     (id ,id)
+			     ;; on click js
+			     ,(on-click-script!
+			       (lambda (_)
+				 (let ((element (get-element-by-id id)))
+				   (set-element-active! element)
+				   (for-each (lambda (e)
+					       (if (active-element? e)
+						   (begin
+						     (remove-class e inactive-colors)
+						     (add-class e active-colors))
+						   (begin
+						     (remove-class e active-colors)
+						     (add-class e inactive-colors))))
+					     size-elements)))))
+			  ,s))))
+	   sizes))
+    
+    `(section (@ (class "bg-white border-b"))
+	      (div (@ (class "flex flex-wrap"))
+		   (img (@ (class "bg-gray-600 w-auto bg-fixed")
+			   (src "pictures/tshirt.jpeg")))
+
+		   (div (@ (class "flex flex-col  w-screen shadow-2xl bg-white px-4"))
+			
+			
+			(div (@ (class "font-extrabold text-4xl text-black"))
+			     "Round neck t-shirt")
+
+			(div (@ (class "flex flex-row"))
+			     
+			     ,@(color-circles "purple" "black" "blue" "red" "green")
+			     ,(svg-circle '(@ (class "fill-current text-purple-500 inline-block h-20 w-16")
+					      (stroke-width "3")
+					      (stroke "red"))
+					  30 30 18))
+
+			(div (@ (class "flex flex-row"))
+			     ,(size-selector "Small" "Medium" "Large"))
+
+			(div (@ (class "flex flex-col"))
+			     (div (@ (class "text-xl text-black py-3 px-2 bold"))
+				  "Description")
+			     (div (@ (class "text-lg text-black px-2"))
+				  "Handcrafted quality, best of class materials. Presenting you the 
+very best of merchandise in India."))
+
+			
+
+			(div (@ (class "flex flex-col px-2 py-5"))
+			     (button (@ ,(classes order-button-style))
+				     "Request samples")))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; contact us page ;;
+;;;;;;;;;;;;;;;;;;;;;
+
 (define contact
   `(section (@ (class "container mx-auto text-center py-6 mb-12"))
 
@@ -317,6 +507,11 @@
 	    (a (@ (href "/contact-us.html"))
 	       (button (@ (class "mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg"))
 		       "Contact us!"))))
+
+
+;;;;;;;;;;;;;
+;; footers ;;
+;;;;;;;;;;;;;
 
 (define-record-type footer-item (fields icon label href))
 (define-record-type footer-list (fields title items))
@@ -381,6 +576,9 @@
 	      ,@(map footer-list->sxml footer-items)))))
 
 
+;;;;;;;;;;;;;;;;;
+;; macro utils ;;
+;;;;;;;;;;;;;;;;;
 
 (meta define construct-name
       (lambda (template-identifier . args)
@@ -415,6 +613,10 @@
 		 'replace))))))))
 
 
+;;;;;;;;;;;;;;;;
+;; Site macro ;;
+;;;;;;;;;;;;;;;;
+
 ;; macro with site template
 
 (define-syntax define-threadstory-page
@@ -424,7 +626,7 @@
        `(body (@ (class "leading-normal tracking-normal text-white gradient")
 		 (style "font-family: 'Source Sans Pro', sans-serif;"))
 	      
-	      ,(navbar active-page '((home . "/") products ) background-white?)
+	      ,(navbar active-page '((home . "/") products product-detail) background-white?)
 
 	      ,@content
 
@@ -432,8 +634,6 @@
 
 	      (script (@ (type "application/javascript")
 			 (src "scripts/app.js")) " "))))))
-
-
 
 
 (define-threadstory-page index (list hero
@@ -446,6 +646,9 @@
 
 (define-threadstory-page products `(,(product-grid #f)
 				    (script "window.bgWhite = true")) 'products #t)
+
+(define-threadstory-page product-detail `(,(product-detail (car products))
+					  (script "window.bgWhite = true")) 'products #t)
 
 
 (define-threadstory-page about
@@ -460,59 +663,15 @@ easier to access.")))
     (script "window.bgWhite = true")) 'about #t)
 
 
-(define input
-  (case-lambda
-    ((input-name) (input input-name "text"))
-    ((input-name type)
-     `(div (@ (class "flex items-center  mb-6"))
-	   (div (@ (class "w-1/3"))
-		(label
-		 (@ ,(classes '(block text-gray-500 font-bold md:text-center
-				      mb-1 md:mb-0 pr-4 ))
-		    (for ,input-name))
-		 ,(string-titlecase input-name)))
-	   (div (@ (class "w-2/3"))
-		(input
-		 (@ ,(classes
-		      '(bg-gray-200 appearance-none border-2
-				    border-gray-200 rounded
-				    w-full py-2 px-4 text-gray-700
-				    leading-tight focus:outline-none
-				    focus:bg-white focus:border-purple-500))
-		    (required "true")
-		    (type ,type)
-		    (id ,input-name))
-		 ""))))))
-
-
-(define (select-box input-name options)
-  `(div (@ (class "flex items-center mb-6"))
-	(div (@ (class "w-1/3"))
-	     (label
-	      (@ ,(classes '(block text-gray-500 font-bold md:text-center
-				   mb-1 md:mb-0 pr-4 ))
-		 (for ,input-name))
-	      ,(string-append "Select " (string-titlecase input-name))))
-	
-	(div (@ (class "w-2/3"))
-	     (div (@ (class "relative"))
-		  (select (@ (class "block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500")
-			     (id ,input-name))
-			  ,@(map (lambda (o) `(option ,o)) options))
-		  (div (@ (class "pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"))
-		       (svg (@ (class "fill-current h-4 w-4")
-			       (xmlns "http://www.w3.org/2000/svg")
-			       (viewBox "0 0 20 20"))
-			    (path (@ (d "M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z")))))))))
-
-
 (define-threadstory-page contact-us
   `((section (@ (class "bg-white border-b py-12"))
 	     (div (@ (class "container max-w-5xl mx-auto m-8 py-8"))
 
 		  ,@(section-title "Contact us")
 
-		  (div (@ (class "text-center py-8 px-2")) (p (@ (class "text-black"))  "Call us at +91-7004282702 or fill this form and we will get back to you."))
+		  (div (@ (class "text-center py-8 px-2"))
+		       (p (@ (class "text-black"))
+			  "Call us at +91-7004282702 or fill this form and we will get back to you."))
 
 		  (form (@ (class "w-full max-w-sm container mx-auto px-8 text-center"))
 
@@ -568,8 +727,36 @@ easier to access.")))
 
   #t)
 
+(define generate-site-pages
+  (lambda ()
+    (generate-index-page)
+    (generate-products-page)
+    (generate-about-page)
+    (generate-contact-us-page)
+    (generate-product-detail-page)))
+
+#!eof
+
+
+(define build (fork-thread
+	       (lambda ()
+		 (let lp ((run #t))
+		   (load "web.scm")
+		   (load "build.scm")
+		   (generate-site)
+
+		   (with-output-to-file "build.log"
+		     (lambda ()
+		       (display "build done")
+		       (display (current-date))
+		       (newline))
+		     'append)
+		   
+		   (lp (sleep (make-time 'time-duration 10 3)))))))
+
 ;; read contacts
 ;;
+
 (with-input-from-file "server/contacts.scm"
   (lambda ()
     (let lp ((ch (read))
@@ -578,11 +765,3 @@ easier to access.")))
        ((eof-object? ch) (reverse xs))
        (else (lp (read) (cons ch xs)))))))
 
-#!eof
-
-(load "web.scm")
-(load "build.scm")
-
-(generate-site)
-
-(begin )

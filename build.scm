@@ -1,14 +1,3 @@
-(include "web.scm")
-
-
-(define generate-site-pages
-  (lambda ()
-    (generate-index-page)
-    (generate-products-page)
-    (generate-about-page)
-    (generate-contact-us-page)))
-
-
 (define copy-binary-file
   (lambda (src dest)
     (printf "copying file from: ~s to: ~s \n" src dest)

@@ -76,13 +76,15 @@
 
 (define (generate-site)
   (ensure-directory *dist-directory*)
+  (ensure-directory (string-append *dist-directory* "/products"))
   (generate-site-pages)
   (copy-folder "pictures")
   (copy-binary-file "contact-us.js" "dist/scripts/contact-us.js")
+  (copy-binary-file "order.js" "dist/scripts/order.js")
   (compile-javascript "app.js.scm" )
   (when (prod-environment?)
     (begin (purge-css)
-	   (compress-js "app.js" "contact-us.js")
+	   ;; (compress-js "app.js" "contact-us.js"  "order.js")
 	   (compress-pictures)
 	   (package-html))))
 

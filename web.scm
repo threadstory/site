@@ -23,7 +23,7 @@
  ((dev-environment?)
   (define +tailwind-css-url+ "https://unpkg.com/tailwindcss/dist/tailwind.min.css"))
  (else
-  (define +tailwind-css-url+ "./base.css")))
+  (define +tailwind-css-url+ "/base.css")))
 
 (define +font-url+ "https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700")
 
@@ -119,7 +119,7 @@
 						   lg:text-4xl))
 			  (href "/"))
 		       (img (@ (class "h-8 fill-current inline px-4")
-			       (src "./pictures/ts-white.svg")))
+			       (src "/pictures/ts-white.svg")))
 		       "Threadstory"))
 
 	       ;; hamburger
@@ -229,7 +229,7 @@
 				     focus:bg-white focus:border-purple-500))
 		     (required "true")
 		     (type ,(input-options-type options))
-		     (id ,input-name)) ""))))))
+		     (id ,(string-downcase input-name))) ""))))))
 
 (define-syntax text-input
   (syntax-rules ()
@@ -374,16 +374,17 @@
 
 (define (cards->sxml cards)
   (define (card->sxml card)
-    `(div (@ ,(classes '(w-full md:w-1/3 p-6 flex flex-col flex-grow flex-shrink)))
-	  (div (@ (class "max-w-sm rounded overflow-hidden shadow-lg"))
-	       (img (@ (class "w-full")
-		       (src ,(card-image card))
-		       (alt ,(card-name card))))
-	       (div (@ (class "px-6 py-4"))
-		    (div (@ (class "font-bold text-xl text-black mb-2"))
-			 ,(card-name card))
-		    (p (@ (class "text-gray-700 text-base"))
-		       ,(card-description card))))))
+    `(a (@ ,(classes '(w-full md:w-1/3 p-6 flex flex-col flex-grow flex-shrink))
+	   (href ,(string-append "products/" (string-downcase (card-name card)) ".html")))
+	(div (@ (class "max-w-sm rounded overflow-hidden shadow-lg"))
+	     (img (@ (class "w-full")
+		     (src ,(card-image card))
+		     (alt ,(card-name card))))
+	     (div (@ (class "px-6 py-4"))
+		  (div (@ (class "font-bold text-xl text-black mb-2"))
+		       ,(card-name card))
+		  (p (@ (class "text-gray-700 text-base"))
+		     ,(card-description card))))))
   
   `(div (@ (class "flex-wrap flex max-w-6xl mx-auto"))
 	,@(map card->sxml cards)))
@@ -392,29 +393,29 @@
 ;; products ;;
 ;;;;;;;;;;;;;;
 
-(define products (list (make-card "Hoodies"
-				  "Comfortable pullovers for your winters"
-				  "pictures/hoodie.webp")
-		       
-		       (make-card "Round neck t-shirts"
-				  "Comfortable cotton t-shirts"
-				  "pictures/tshirt.webp")
+(define product-list (list (make-card "Hoodies"
+				      "Comfortable pullovers for your winters"
+				      "/pictures/hoodie.webp")
+			   
+			   (make-card "Round neck t-shirts"
+				      "Comfortable cotton t-shirts"
+				      "/pictures/tshirt.webp")
 
-		       (make-card "Caps"
-				  "Caps for summers"
-				  "pictures/caps.webp")
+			   (make-card "Caps"
+				      "Caps for summers"
+				      "/pictures/caps.webp")
 
-		       (make-card "Flex Banner"
-				  "Banners for powerful messages"
-				  "pictures/flex-banner.webp")
+			   (make-card "Flex Banner"
+				      "Banners for powerful messages"
+				      "/pictures/flex-banner.webp")
 
-		       (make-card "Posters"
-				  "Posters for your room"
-				  "pictures/poster.webp")
+			   (make-card "Posters"
+				      "Posters for your room"
+				      "/pictures/poster.webp")
 
-		       (make-card "Visiting cards"
-				  "Visiting cards for business"
-				  "pictures/card.webp")))
+			   (make-card "Visiting cards"
+				      "Visiting cards for business"
+				      "/pictures/card.webp")))
 
 (define product-grid
   (lambda (only-popular?)
@@ -427,8 +428,8 @@
 			 (list))
 
 		   ,(cards->sxml (if only-popular?
-				     (take products 3)
-				     products))
+				     (take product-list 3)
+				     product-list))
 
 		   (img (@ (class "wave-top")
 			   (src "pictures/wave-top.svg")))))))
@@ -448,7 +449,8 @@
 (define (color-circles . colors)
   (map (lambda (c)
 	 (let ((color (string->symbol (string-append "text-" c "-500"))))
-	   (svg-circle `(@ ,(classes `(,color fill-current inline-block h-12 w-12)))
+	   (svg-circle `(@ ,(classes `(,color fill-current inline-block h-12 w-12))
+			   (id ,c))
 		       30 30 12)))
        colors))
 
@@ -472,74 +474,44 @@
 	((_ label input-type)
 	 (input (input-options ((input-name label)
 				(type input-type)
-				(container-class "flex flex-row text-center py-2")
-				(label-class "flex")
-				(input-class "flex w-full")))))))    
+				(container-class "flex-initial flex-row text-center py-2")
+				(label-class "flex ")
+				(input-class "flex w-full h-12 appearance-none leading-tight")))))))    
 
     (define (size-selector . sizes)
-      ;; js as side effect for now
-      ;; (define-client-script! (lambda ()
-      ;; 			       (define size-elements
-      ;; 				 (map (lambda (s) (get-element-by-id (string-append "size-" s))) sizes))
-
-      ;; 			       (define active-element? (lambda (e) (class-contains? element "active")))
-
-      ;; 			       (define set-element-active! (lambda (e) (add-class element "active")))
-
-      ;; 			       (define active-colors (cdr (assoc 'active colors)))
-      ;; 			       (define inactive-colors (cdr (assoc 'inactive colors)))
-
-      ;; 			       #f))
-
-      ;; html
       (map (lambda (s)
-	     (let ((id (string-append "size-"  s)))
+	     (let ((id (string-append "size-"  (string-downcase s))))
 	       `(div (@ (class "w-1/3 p-1 text-center"))
 		     (div (@ ,(classes size-selector-style)
-			     (id ,id)
-			     ;; on click js
-			     ;; ,(on-click-script!
-			     ;;   (lambda (_)
-			     ;; 	 (let ((element (get-element-by-id id)))
-			     ;; 	   (set-element-active! element)
-			     ;; 	   (for-each (lambda (e)
-			     ;; 		       (if (active-element? e)
-			     ;; 			   (begin
-			     ;; 			     (remove-class e inactive-colors)
-			     ;; 			     (add-class e active-colors))
-			     ;; 			   (begin
-			     ;; 			     (remove-class e active-colors)
-			     ;; 			     (add-class e inactive-colors))))
-			     ;; 		     size-elements))))
-			     )
-			  ,s))))
+			     (id ,id)) ,s))))
 	   sizes))
 
     (define label
       (lambda (txt)
 	`(div (@ (class "text-xl text-black py-3 px-2 bold")) ,txt)))
-    
-    `(section (@ (class "bg-white border-b w-screen py-8 align-middle"))
+    `(section (@ (class "bg-white border-b w-screen py-4 align-middle sm:container sm:mx-auto"))
 	      (div (@ (class "flex flex-row flex-wrap container mx-auto py-8 "))
 
-		   (img (@ (class "flex-1 bg-fixed py-8")
-			   (src "pictures/tshirt.webp")))
+		   (img (@ (class "flex-1 bg-fixed py-8 md:mb-48 ")
+			   (src ,(card-image product))))
 		   
 		   (div (@ (class "flex-1 flex-col w-screen shadow-2xl bg-white px-4 py-8 z-3"))
 			
 			
-			(div (@ (class "font-extrabold text-4xl text-black"))
-			     "Round neck t-shirt")
+			(div (@ (class "font-extrabold text-4xl text-black")
+				(id "product"))
+			     ,(string-append "Custom " (card-name product)))
 
-			(div (@ (class "flex flex-row"))
+			(div (@ (class "flex flex-row sm:mr-3"))
 
 			     ,(label "Choose color: ")
 			     
 			     ,@(color-circles "purple" "black" "blue" "red" "green")
-			     ,(svg-circle '(@ (class "fill-current text-purple-500 inline-block h-20 w-16")
-					      (stroke-width "3")
-					      (stroke "red"))
-					  30 30 18))
+			     ;; ,(svg-circle '(@ (class "fill-current text-purple-500 inline-block h-20 w-16")
+			     ;; 		      (stroke-width "3")
+			     ;; 		      (stroke "red"))
+			     ;; 		  30 30 18)
+			     )
 			
 			(div (@ (class "flex flex-row w-auto"))
 
@@ -548,19 +520,19 @@
 			     (div (@ (class "flex flex-row "))
 				  ,(size-selector "Small" "Medium" "Large")))
 
-			(div (@ (class "flex flex-col"))
-			     ,(label "Upload design:")
-			     (div (@ (class "overflow-hidden relative text-center"))
-				  (button (@ ,(classes (quote (py-2 px-4 w-full inline-flex items-center
-								    bg-gray-200 text-gray-700 border
-								    border-gray-200 rounded
-								    hover:border-gray-500 h-32
-								    text-center))))
-					  (span
-					   (@ (class "container mx-auto w-full"))
-					   "Browse Files")
-					  (input (@ (class "cursor-pointer absolute block opacity-0 pin-r pin-t")
-						    (type "file"))))))
+			;; (div (@ (class "flex flex-col"))
+			;;      ,(label "Upload design:")
+			;;      (div (@ (class "overflow-hidden relative text-center"))
+			;; 	  (button (@ ,(classes (quote (py-2 px-4 w-full inline-flex items-center
+			;; 					    bg-gray-200 text-gray-700 border
+			;; 					    border-gray-200 rounded
+			;; 					    hover:border-gray-500 h-32
+			;; 					    text-center))))
+			;; 		  (span
+			;; 		   (@ (class "container mx-auto w-full"))
+			;; 		   "Browse Files")
+			;; 		  (input (@ (class "cursor-pointer absolute block opacity-0 pin-r pin-t")
+			;; 			    (type "file"))))))
 
 			(div (@ (class "flex flex-col"))
 			     ,(label "Description:")
@@ -568,14 +540,13 @@
 				  "Handcrafted quality, best of class materials. Presenting you the 
 very best of merchandise in India."))
 			
-			
-			(div (@ (class "w-full px-8 text-center container mx-auto py-4"))
+			(div (@ (class "text-lg text-black px-2 py-4"))
+			     "Enter your contact details below to order samples.")
+			(div (@ (class "w-full md:px-8 text-center container mx-auto py-2"))
 			     ,(form-input "Name" "text")
-			     ,(form-input "Phone" "tel"))
+			     ,(form-input "Phone" "tel")
+			     ,(form-input "Pincode" "text"))
 
-			(div (@ (class "flex flex-col px-2 py-8"))
-			     (button (@ ,(classes order-button-style))
-				     "Request samples"))
 
 			(div (@ (class "container mx-auto"))
 			     (div (@ (class "bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md hidden")
@@ -602,7 +573,12 @@ very best of merchandise in India."))
 				       ,(string-append
 					 "Could not record your query. Please call us @"
 					 *threadstory-phone*))))
+			
 
+			(div (@ (class "flex flex-col px-2 py-8")
+				(id "send-enquiry"))
+			     (button (@ ,(classes order-button-style))
+				     "Order samples"))
 			)))))
 
 
@@ -640,13 +616,13 @@ very best of merchandise in India."))
 (define footer-items
   (list
    (make-footer-list "Contact Info"
-		     (list (make-footer-item "./pictures/mail.svg"
+		     (list (make-footer-item "/pictures/mail.svg"
 					     *threadstory-email*
 					     (string-append "mailto:" *threadstory-email*))
-			   (make-footer-item " ./pictures/phone.svg"
+			   (make-footer-item " /pictures/phone.svg"
 					     *threadstory-phone*
 					     (string-append "tel:" *threadstory-phone*)) 
-			   (make-footer-item "./pictures/whatsapp.svg"
+			   (make-footer-item "/pictures/whatsapp.svg"
 					     *threadstory-phone*
 					     (string-append "https://api.whatsapp.com/send?phone=" *threadstory-phone*))))
    (make-footer-list "Legal" '(terms privacy))
@@ -684,7 +660,7 @@ very best of merchandise in India."))
 				       ((footer-item? i) (footer-item-href i))
 				       ;; if item pair then car is label cdr is link
 				       ((pair? i) (cdr i))
-				       (else (string-append "./"
+				       (else (string-append "/"
 							    (if (symbol? i) (symbol->string i) i)
 							    ".html")))))
 			    `(li (@ (class "mt-2 inline-block mr-2 md:block md:mr-0"))
@@ -707,7 +683,7 @@ very best of merchandise in India."))
 						lg:text-4xl))
 			 (href "#"))
 		      (img (@ (class "h-6 fill-current inline mr-2")
-			      (src "./pictures/ts-white.svg")))
+			      (src "/pictures/ts-white.svg")))
 		      "Threadstory"))
 
 	      ,@(map footer-list->sxml footer-items)))))
@@ -742,12 +718,13 @@ very best of merchandise in India."))
       ((_ page-name content)
        (with-syntax ((gen-lambda (construct-name #'page-name "generate-" #'page-name "-page"))
 		     (dist-page (construct-string #'page-name "/" #'page-name ".html")))
-	 #'(define gen-lambda
-	     (lambda ()
-	       (with-output-to-file (string-append *dist-directory* dist-page)
-		 (lambda ()
-		   (SXML->HTML (html-template content)))
-		 'replace))))))))
+	 #'(begin (define gen-lambda
+		    (lambda ()
+		      (with-output-to-file (string-append *dist-directory* dist-page)
+			(lambda ()
+			  (SXML->HTML (html-template content)))
+			'replace)))
+		  (gen-lambda)))))))
 
 
 ;;;;;;;;;;;;;;;;
@@ -770,7 +747,7 @@ very best of merchandise in India."))
 	      ,footer
 
 	      (script (@ (type "application/javascript")
-			 (src "scripts/app.js")) " "))))))
+			 (src "/scripts/app.js")) " "))))))
 
 
 (define-threadstory-page index (list hero
@@ -784,9 +761,30 @@ very best of merchandise in India."))
 (define-threadstory-page products `(,(product-grid #f)
 				    (script "window.bgWhite = true")) 'products #t)
 
-(define-threadstory-page product-detail `(,(product-detail (car products))
-					  (script "window.bgWhite = true")) 'products #t)
+(trace-define-syntax define-pages
+  (lambda (stx)
+    (syntax-case stx ()
+      ((_ prefix)
+       (with-syntax ((((name . (product-prop ...)) ...)
+		      (map (lambda (p)
+			     (cons (construct-name #'prefix
+						   #'prefix
+						   "/"
+						   (string->symbol (string-downcase (card-name p))))
+				   (map (lambda (x)
+					  (datum->syntax #'prefix x))
+					(list (card-name p)
+					      (card-description p)
+					      (card-image p)))))
+			   product-list)))
+	 #'(begin (define-threadstory-page name
+		    `(,(product-detail (make-card product-prop ...)) 
+		      (script "window.bgWhite = true")
+		      (script (@ (src "/scripts/order.js")
+				 (type "application/javascript"))
+			      "")) 'products #t) ...))))))
 
+(define-pages products)
 
 (define-threadstory-page about
   `((section (@ (class "bg-white border-b py-12"))
@@ -820,7 +818,7 @@ easier to access.")))
 			,(input (input-options ((input-name "email")
 						(type "email"))))
 
-			,(select-box "product" (map card-name products))
+			,(select-box "product" (map card-name product-list))
 
 			,(input (input-options ((input-name "quantity")
 						(type "number"))))
@@ -861,20 +859,11 @@ easier to access.")))
 
     (script "window.bgWhite = true")
     (script (@ (type "application/javascript")
-	       (src "scripts/contact-us.js")) ""))
+	       (src "/scripts/contact-us.js")) ""))
 
   'contact-us
 
   #t)
-
-(define generate-site-pages
-  (lambda ()
-    (generate-index-page)
-    (generate-products-page)
-    (generate-about-page)
-    (generate-contact-us-page)
-    (generate-product-detail-page)))
-
 #!eof
 
 

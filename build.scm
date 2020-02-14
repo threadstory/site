@@ -62,7 +62,7 @@
 (define (compress-js . js-files)
   (displayln "compressing js")
   (for-each (lambda (file)
-	      (system (string-append "uglifyjs " file " -o dist/scripts/" file)))
+	      (system (string-append "uglifyjs dist/scripts/" file " -o dist/scripts/" file)))
 	    js-files))
 
 (define (compress-pictures)
@@ -71,6 +71,7 @@
   (system "~/apps/pingo -strip dist/pictures/"))
 
 (define (package-html)
+  (displayln "packaging static site")
   (system "tar -cvf server.tar.gz dist/"))
 
 (define (generate-site)
@@ -82,7 +83,8 @@
   (when (prod-environment?)
     (begin (purge-css)
 	   (compress-js "app.js" "contact-us.js")
-	   (compress-pictures))))
+	   (compress-pictures)
+	   (package-html))))
 
 #!eof
 

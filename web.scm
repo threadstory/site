@@ -156,8 +156,12 @@
 ;; form elements ;;
 ;;;;;;;;;;;;;;;;;;;
 
+(define assget
+  (lambda (k xs)
+    (let ((val (assoc k xs)))
+      (if val (cadr val) #f))))
 
-(define-syntax define-record-with-defaults
+(trace-define-syntax define-record-with-defaults
   (lambda (stx)
     (syntax-case stx ()
       ((_ record-name (field-info ...))
@@ -181,18 +185,19 @@
 			  (let ((default-vals (filter (lambda (f) (not (symbol? f))) fields)))
 			    (map (lambda (field)
 				   (cond
-				    ((symbol? field)  (cadr (assoc field field-values-info)))
-				    ((pair? field) (or (cadr (assoc (car field) default-vals))
-						      (cdr field)))
+				    ((symbol? field) (assget field field-values-info))
+				    ((pair? field) (or (assget (car field) field-values-info)
+						      (assget (car field) default-vals)))
 				    (else (error "wrong value passed to constructor" field))))
 				 fields))))
 		      
 		      (syntax-case stx ()
-			((_ opts (... ...))
+			((_ (opts (... ...)))
 			 (with-syntax (((vals (... ...))
 					(map (lambda (v) (datum->syntax #'record-name v))
 					     (order '(field-info ...)
-						    (map syntax->datum #'(opts (... ...)))))))			   #'(default-constructor vals (... ...)))))))))))))
+						    (map syntax->datum #'(opts (... ...)))))))
+			   #'(default-constructor vals (... ...)))))))))))))
 
 
 ;; constructor takes a plist of values
@@ -201,41 +206,35 @@
   (input-name
    [type "text"]
    [label-class "w-1/3"]
-   [input-class "w-1/3"]
+   [input-class "w-2/3"]
    [container-class "flex items-center mb-6"]))
 
-;; (input-options '((type "text")
-;; 		 (label-class "w-1/3")
-;; 		 (input-class "w-1/3")
-;; 		 (container-class "flex items-center  mb-6")))
-
-(input-options [input-name "he"])
-
-
 (define input
-  (case-lambda
-    ((input-name) (input input-name "text"))
-    ((input-name type) (input input-name type ))
-    ((input-name type label-class input-class container-class)
-     `(div (@ (class "flex items-center  mb-6"))
-	   (div (@ (class "w-1/3"))
-		(label
-		 (@ ,(classes '(block text-gray-500 font-bold md:text-center
-				      mb-1 md:mb-0 pr-4 ))
-		    (for ,input-name))
-		 ,(string-titlecase input-name)))
-	   (div (@ (class "w-2/3"))
-		(input
-		 (@ ,(classes
-		      '(bg-gray-200 appearance-none border-2
-				    border-gray-200 rounded
-				    w-full py-2 px-4 text-gray-700
-				    leading-tight focus:outline-none
-				    focus:bg-white focus:border-purple-500))
-		    (required "true")
-		    (type ,type)
-		    (id ,input-name))
-		 ""))))))
+  (lambda (options)
+    (let ((input-name (input-options-input-name options)))
+      `(div (@ (class ,(input-options-container-class options)))
+	    (div (@ (class ,(input-options-label-class options)))
+		 (label
+		  (@ ,(classes '(block text-gray-500 font-bold md:text-center
+				       mb-1 md:mb-0 pr-4 ))
+		     (for ,input-name))
+		  ,(string-titlecase input-name)))
+	    (div (@ (class ,(input-options-input-class options)))
+		 (input
+		  (@ ,(classes
+		       '(bg-gray-200 appearance-none border-2
+				     border-gray-200 rounded
+				     w-full py-2 px-4 text-gray-700
+				     leading-tight focus:outline-none
+				     focus:bg-white focus:border-purple-500))
+		     (required "true")
+		     (type ,(input-options-type options))
+		     (id ,input-name)) ""))))))
+
+(define-syntax text-input
+  (syntax-rules ()
+    ((_ name)
+     (input (input-options ((input-name name)))))))
 
 
 (define (select-box input-name options)
@@ -468,6 +467,15 @@
     (define colors (quote ((active . (text-black hover:text-white))
 			   (inactive . (text-white hover:text-black)))))
 
+    (define-syntax form-input
+      (syntax-rules ()
+	((_ label input-type)
+	 (input (input-options ((input-name label)
+				(type input-type)
+				(container-class "flex flex-row text-center py-2")
+				(label-class "flex")
+				(input-class "flex w-full")))))))    
+
     (define (size-selector . sizes)
       ;; js as side effect for now
       ;; (define-client-script! (lambda ()
@@ -559,15 +567,43 @@
 			     (div (@ (class "text-lg text-black px-2"))
 				  "Handcrafted quality, best of class materials. Presenting you the 
 very best of merchandise in India."))
-
-
-			(div (@ (class "w-full px-8 text-center container mx-auto py-4"))
-			     ,(input "Name")
-			     ,(input "Phone" "tel"))
 			
-			(div (@ (class "flex flex-col px-2 py-5"))
+			
+			(div (@ (class "w-full px-8 text-center container mx-auto py-4"))
+			     ,(form-input "Name" "text")
+			     ,(form-input "Phone" "tel"))
+
+			(div (@ (class "flex flex-col px-2 py-8"))
 			     (button (@ ,(classes order-button-style))
-				     "Request samples")))))))
+				     "Request samples"))
+
+			(div (@ (class "container mx-auto"))
+			     (div (@ (class "bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md hidden")
+				     (role "alert")
+				     (id "success-message"))
+				  (div (@ (class "flex"))
+				       (div (@ (class "py-1"))
+					    (svg (@ (class "fill-current h-6 w-6 text-teal-500 mr-4")
+						    (xmlns "http://www.w3.org/2000/svg")
+						    (viewBox "0 0 20 20"))
+						 (path (@ (d "M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z")))))
+				       (div (p (@ (class "font-bold"))
+					       "Your query has been recorded.")
+					    (p (@ (class "text-sm"))
+					       "We will get back to you in 12 hours"))))
+
+			     (div (@ (role "alert")
+				     (class "hidden")
+				     (id "error-message"))
+				  (div (@ (class "bg-red-500 text-white font-bold rounded-t px-4 py-2"))
+				       "Error")
+				  (div (@ (class "border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700")
+					  (id "error-text"))
+				       ,(string-append
+					 "Could not record your query. Please call us @"
+					 *threadstory-phone*))))
+
+			)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -776,15 +812,18 @@ easier to access.")))
 
 		  (form (@ (class "w-full max-w-sm container mx-auto px-8 text-center"))
 
-			,(input "name")
+			,(text-input "Name")
 
-			,(input "phone" "tel")
+			,(input (input-options ((input-name "phone")
+						(type  "tel"))))
 
-			,(input "email" "email")
+			,(input (input-options ((input-name "email")
+						(type "email"))))
 
 			,(select-box "product" (map card-name products))
 
-			,(input "quantity" "number")
+			,(input (input-options ((input-name "quantity")
+						(type "number"))))
 
 			(div (@ (class "flex items-center mb-6"))
 			     (div (@ (class "w-1/3")) "")
